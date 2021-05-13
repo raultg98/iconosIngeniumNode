@@ -5,27 +5,29 @@ const { Router } = require('express');
 // console.log(datos);
 
 // ARRAY DE TODAS LAS LISTAS QUE TENEMOS DE ICONOS.
-let listaIconos = [
-    {
-        foto: '/img/icons.png', 
-        titulo: 'DEFAULT', 
-        numero: 200
-    }
-    // ,{
-    //     foto: 'foto3', 
-    //     titulo: 'titulo3',
-    //     numero: 0
-    // }
-];
+// let listaIconos = [
+//     {
+//         foto: '/img/icons.png', 
+//         titulo: 'DEFAULT', 
+//         numero: 200
+//     }
+//     // ,{
+//     //     foto: 'foto3', 
+//     //     titulo: 'titulo3',
+//     //     numero: 0
+//     // }
+// ];
 
 const router = Router();
 
 router.get('/', (req, res)=>{
     console.log('Estoy en la ruta: ', req.path);
+
+    res.render('index');
     
-    res.render('index', {
-        listaIconos
-    });
+    // res.render('index', {
+    //     listaIconos
+    // });
 });
 
 router.get('/add', (req, res, next)=>{
