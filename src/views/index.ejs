@@ -1,67 +1,10 @@
 <%- include('template/cabecera.ejs', {titulo: 'Iconos Ingen1um'}) %>
 
-<% for(let i=0; i<datos.length; i++){ %>
-    <div class="container my-3 py-2 border border-success rounded">
+<div id="divPadre"></div>
 
-        <!-- PARTE SUPERIOR -->
-        <div class="d-flex align-items-center justify-content-between">
+<div id="pruebas"></div>
 
-            <div class="d-flex align-items-center">
-                <h6 class="text-primary"><%= datos[i].nombre %></h6>
-                
-                <div class="my-4 mx-4 div-icono">
-                    <img src="/img/icons.png" alt="No se puede mostrar" 
-                        id="<%= datos[i].icono %>" class="imagen">
-                </div>
-            </div>
-        
-            <!-- FLECHITA -->
-            <i class="fas fa-arrow-right text-success"></i>
+<div class="paco"></div>
 
-        
-            <!-- ICONO A CAMBIAR -->
-            <div class="nuevoIcono">
-
-            </div>
-
-            <!-- BOTON CAMBIAR ICONO -->
-            <!-- EN EL MOMENTO EN EL QUE NOSOTROS LE DEMOS A ESTE BOTON SE DEBERAN DE GUARDAR LOS CAMBIOS -->
-            <button type="button" class="btn btn-outline-primary">
-                Cambiar Icono
-            </button>
-        </div>
-
-        <!-- ACCORDEONES  -->
-        <div class="accordion" id="acordeonPadre">
-            <div class="accordion-item">
-
-                <% for(let j=0; j<listaIconos.length; j++){ %> 
-                    <!-- BOTON -->
-                    <h2 class="accordion-header my-1" id="heading<%= i %><%= j %>">
-
-                        <button class="accordion-button bg-primary text-white botonAcordeon" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= i %><%= j %>" 
-                                aria-expanded="false" aria-controls="collapse<%= i %><%= j %>">
-                                    
-                                <!-- onclick="mostrarAcordeon()" id="<%# j %>" value="<%# listaIconos[j].foto %> <%# listaIconos[j].numero %>" -->
-                                <%= listaIconos[j].titulo %> 
-                        </button>
-                    </h2>
-
-                    <!-- CUERPO -->
-                    <div id="collapse<%= i %><%= j %>" class="accordion-collapse collapse bg-dark text-warning" aria-labelledby="heading<%= i %><%= j %>" data-bs-parent="#acordeonPadre">
-                        
-                        <!-- TODOS LOS ACORDEONES 127*200 = 327-->
-                        <div class="accordion-body d-flex flex-wrap justify-content-center divConDatos " 
-                             id="<%= listaIconos[j].foto %>" value="<%= listaIconos[j].numero %>">
-
-                        </div>
-                    </div>
-                <% } %> 
-            </div>
-        </div>
-
-    </div>
-<% } %> 
-
-<h1>holaa</h1>
 <%- include('template/footer.ejs') %> 
+<!-- <canvas class="canvasIconoActual" id="<%# datos[i].icono %>"></canvas> -->
