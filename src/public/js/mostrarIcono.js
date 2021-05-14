@@ -68,7 +68,7 @@ recortarIconosLista();
 
 
 // TENGO QUE LEER EL JSON CON TODOS LOS DISPOSITIVOS PARA DESPUES MOSTRAR ESTOS.
-function leerJSON() {
+setTimeout(function leerJSON() {
     fetch('../datos/Instal.json')
         .then(res => res.json())
         .then(componentes => {
@@ -93,9 +93,11 @@ function leerJSON() {
                 const nuevoIconoApagado = document.createElement('div');
                 const acordeon1 = document.createElement('div');
                 const acordeon2 = document.createElement('div');
+                const formulario = document.createElement('form');
+                const botonEnviar = document.createElement('button');
 
                 // ESTILOS
-                dispositivo.setAttribute('class', 'row mx-3 my-5 p-2 border border-2 border-primary rounded');
+                dispositivo.setAttribute('class', 'row mx-3 my-5 border border-2 border-primary rounded');
 
                 nombre.setAttribute('class', 'text-center text-primary');
 
@@ -112,63 +114,88 @@ function leerJSON() {
 
                 acordeon1.setAttribute('class', 'acordeon1');
 
-                
+                nuevoIconoEncendido.setAttribute('class', `nuevoIcono-ON${i}`);
+
+                formulario.setAttribute('class', 'my-3');
+                botonEnviar.setAttribute('class', 'col-12 btn btn-primary border-2');
+
+
                 // VALORES
                 nombre.innerText = componentes[i].nombre;
                 
                 encabezadoEncendido.innerText = 'Encendido';
                 encabezadoApagado.innerText = 'Apagado';
+                
+                botonEnviar.innerText = 'Guardar Cambios';
 
                 // ICONOS
                 let posicion = parseInt(componentes[i].icono);
 
                 // HAY VECES QUE AL RECARGAR LA PAGINA NO SE CARGAN BIEN LOS ICONOS DE CADA DISPOSITIVO.
-                // setTimeout(function(){
-                    let posicionEncendido = -1;
-                    let posicionApagado = -1;
+                let posicionEncendido = -1;
+                let posicionApagado = -1;
 
-                    if(posicion < 100){
-                        posicionEncendido = posicion;
-                        posicionApagado = (posicion + 100);
-                    }
+                if (posicion < 100) {
+                    posicionEncendido = posicion;
+                    posicionApagado = (posicion + 100);
+                }else if(posicion >= 100){
+                    posicionEncendido = posicion;
+                    posicionApagado = (posicion - 100);
+                }
 
-                    let on = iconosRecortados[posicionEncendido].cloneNode(true);
-                    on.getContext('2d').drawImage(iconosRecortados[posicionEncendido], 0, 0);
+                let on = iconosRecortados[posicionEncendido].cloneNode(true);
+                on.getContext('2d').drawImage(iconosRecortados[posicionEncendido], 0, 0);
 
-                    let off = iconosRecortados[posicionApagado].cloneNode(true);
-                    off.getContext('2d').drawImage(iconosRecortados[posicionApagado], 0, 0);
+                let off = iconosRecortados[posicionApagado].cloneNode(true);
+                off.getContext('2d').drawImage(iconosRecortados[posicionApagado], 0, 0);
 
-                    iconoEncendido.appendChild(on);
-                    iconoApagado.appendChild(off);
-                // }, 0);
+                iconoEncendido.appendChild(on);
+                iconoApagado.appendChild(off);
 
 
-                // EVENTOS
-                encendido.addEventListener('click', ()=>{
+                // CUANDO NOSOTROS NO HEMOS SELECCIONADO TODAVIA NINGUN ICONO QUEREMOS VER QUE EL NUEVO
+                // ICONO ES EL MISMO QUE NOSOTROS TENEMOS, LA COSA ES QUE LO VAMOS A VER CON ALGO DE OPACIDAD.
+
+                let nuevoON = iconosRecortados[posicionEncendido].cloneNode(true);
+                nuevoON.getContext('2d').drawImage(iconosRecortados[posicionEncendido], 0, 0);
+
+                nuevoIconoEncendido.appendChild(nuevoON)
+                nuevoIconoEncendido.style.opacity = '0.5';
+
+                let nuevoOFF = iconosRecortados[posicionApagado].cloneNode(true);
+                nuevoOFF.getContext('2d').drawImage(iconosRecortados[posicionApagado], 0, 0);
+
+                nuevoIconoApagado.appendChild(nuevoOFF);
+                nuevoIconoApagado.style.opacity = '0.5';
+
+
+                    // EVENTOS
+                encendido.addEventListener('click', () => {
                     let enc = '-ON';
 
-                    console.log(acordeon1);
-
-                    if(acordeon1.hasChildNodes()){
+                    if (acordeon1.hasChildNodes()) {
                         acordeon1.removeChild(acordeon1.lastChild);
-                    }else{
-                        acordeon1.appendChild(crearAcordeones(i, enc))
-                        console.log('Se ha pulsado en encendido');
+                    } else {
+                        acordeon1.appendChild(crearAcordeones(i, enc, nuevoIconoEncendido))
                     }
-                    
+
                 });
 
-                apagado.addEventListener('click', ()=>{
+                apagado.addEventListener('click', () => {
                     let apg = '-OFF'
 
-                    if(acordeon2.hasChildNodes()){
+                    if (acordeon2.hasChildNodes()) {
                         acordeon2.removeChild(acordeon2.lastChild);
-                    }else{
-                        acordeon2.appendChild(crearAcordeones(i, apg))
-                        console.log('Se ha pulsado en apagado');
+                    } else {
+                        acordeon2.appendChild(crearAcordeones(i, apg, nuevoIconoApagado))
                     }
-                    
+
                 });
+
+                botonEnviar.addEventListener('submit', (e) =>{
+                    e.preventDefault();
+                });
+
 
                 // APPEND'S
                 encendido.appendChild(iconoEncendido);
@@ -178,30 +205,34 @@ function leerJSON() {
                 apagado.appendChild(iconoApagado);
                 apagado.appendChild(flecha2);
                 apagado.appendChild(nuevoIconoApagado);
-                
+
                 divEncendido.appendChild(encabezadoEncendido);
                 divEncendido.appendChild(encendido);
                 divEncendido.appendChild(acordeon1);
 
                 divApagado.appendChild(encabezadoApagado);
                 divApagado.appendChild(apagado);
-               divApagado.appendChild(acordeon2)
+                divApagado.appendChild(acordeon2)
+
+                formulario.appendChild(botonEnviar);
 
                 dispositivo.appendChild(nombre);
                 dispositivo.appendChild(divEncendido);
                 dispositivo.appendChild(divApagado);
-                // dispositivo.appendChild(acordeon);
-                
+                dispositivo.appendChild(formulario);
+                    // dispositivo.appendChild(acordeon);
+
                 fragmento.appendChild(dispositivo);
+                
             }
 
             divContenedor.appendChild(fragmento);
         })
-}
-leerJSON();
+}, 10);
+// leerJSON();
 
 
-function crearAcordeones(dispositivo, estado) {
+function crearAcordeones(dispositivo, estado, nuevoIcono) {
     const acordeon = document.createElement('div');
     const acordeonItem = document.createElement('div');
 
@@ -210,7 +241,7 @@ function crearAcordeones(dispositivo, estado) {
     acordeonItem.setAttribute('class', 'accordion-item');
 
     // RECORRO LA LISTA DE LISTAS DE ICONOS, PARA SABER CUANDOS ACORDEONES TENGO QUE CREAR.
-    for (let i = 0; i < listasDeIconos.length; i++) {
+    for (let i=0; i<listasDeIconos.length; i++) {
         // CREACION
         const acordeonHeader = document.createElement('h2');
         const acordeonBoton = document.createElement('button');
@@ -246,6 +277,7 @@ function crearAcordeones(dispositivo, estado) {
             c.getContext('2d').drawImage(iconosRecortados[j], 0, 0);
 
             c.addEventListener('click', () => {
+                mostrarIconoAcordeon(j, nuevoIcono);
                 console.log("Se ha pulsado el icono: " + (j + 1) + ' del dispositivo: ' + (dispositivo + 1));
             });
 
@@ -265,7 +297,18 @@ function crearAcordeones(dispositivo, estado) {
     return acordeon;
 }
 
+function mostrarIconoAcordeon(posicion, nuevoIcono){
+    nuevoIcono.style.opacity = '1';
 
+    let icono = iconosRecortados[posicion].cloneNode(true);
+    icono.getContext('2d').drawImage(iconosRecortados[posicion], 0, 0);
+
+    if(nuevoIcono.hasChildNodes()){
+        nuevoIcono.removeChild(nuevoIcono.lastChild);
+    }
+
+    nuevoIcono.appendChild(icono);
+}
 
 // function timer(icono) {
 //     setTimeout(function () {
@@ -280,69 +323,3 @@ function crearAcordeones(dispositivo, estado) {
 //     }, 30);
 // }
 // timer(0);
-
-// CREACION DE ELEMENTOS
-// const dispositivo = document.createElement('div');
-// const superior = document.createElement('div');
-// const iconoActual = document.createElement('div');
-// const nombreIcono = document.createElement('h5');
-// const divIcono = document.createElement('div');
-// const flecha = document.createElement('i');
-// const nuevoIcono = document.createElement('div');
-// const botonAceptar = document.createElement('button');
-
-
-// // ESTILOS
-// dispositivo.setAttribute('class', 'container my-3 py-2 border border-primary border-3 rounded');
-// superior.setAttribute('class', 'd-flex align-items-center justify-content-between flex-wrap');
-// iconoActual.setAttribute('class', 'd-flex align-items-center');
-// flecha.setAttribute('class', 'fas fa-arrow-right text-primary');
-// botonAceptar.setAttribute('class', 'btn btn-outline-primary btn-block');
-// botonAceptar.setAttribute('type', 'submit');
-
-
-// // VALORES
-// let nombre = (componentes[i].nombre + '( ' + i + ' )');
-// nombreIcono.innerText = nombre;
-
-// // ICONO
-// let pos = parseInt(componentes[i].icono);
-
-
-// setTimeout(function () {
-//     const div2 = document.createElement('div');
-//     div2.setAttribute('class', 'div2');
-
-//     let c = iconosRecortados[pos].cloneNode(true);
-//     c.getContext('2d').drawImage(iconosRecortados[pos], 0, 0);
-
-//     div2.appendChild(c);
-//     divIcono.appendChild(div2);
-// }, 0);
-
-// botonAceptar.innerText = 'Cambiar Icono';
-
-// // console.log('COMPONENTE: ' + i + ', ICONO: ' + componentes[i].icono);
-
-// // APPEND'S
-// iconoActual.appendChild(nombreIcono);
-// iconoActual.appendChild(divIcono);
-
-// superior.appendChild(iconoActual);
-// superior.appendChild(flecha);
-// superior.appendChild(nuevoIcono);
-// superior.appendChild(botonAceptar);
-
-// dispositivo.appendChild(superior);
-
-// // AGREGAR LA FUNCIONALIDAD DE QUE CUANDO PULSE EL BOTON DOS VECES ME ELIMINE EL ACORDEON
-// botonAceptar.addEventListener('click', () => {
-//     if (dispositivo.lastChild.getAttribute('id') === 'acordeonPadre') {
-//         dispositivo.removeChild(dispositivo.lastChild);
-//         console.log('Acordeon Eliminado');
-//     } else {
-//         dispositivo.appendChild(crearAcordeones(i));
-//     }
-// })
-
-// fragmento.appendChild(dispositivo);

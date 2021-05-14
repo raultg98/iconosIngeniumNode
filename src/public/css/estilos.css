@@ -1,5 +1,9 @@
-body{
+/* body{
     background-color: aqua;
+} */
+
+body{
+    min-width: 380px;
 }
 
 h5{

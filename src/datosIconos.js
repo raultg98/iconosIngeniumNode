@@ -1,4 +1,4 @@
-let fs = require('fs');
+const fs = require('fs');
 
 // UBICACION DEL INSTAL.DAT
 let pathDatos = './datos/Instal.dat';
