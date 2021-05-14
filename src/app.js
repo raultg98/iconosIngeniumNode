@@ -31,11 +31,8 @@ const storage = multer.diskStorage({
     }
 });
 
-app.use(multer({
-    storage,
-    // Le doy la ruta donde esta la carpeta
-    dest: (__dirname, app.get('pathSubida'))
-}).single('fileToUpload'));
+app.use(multer({storage}).single('fileToUpload'));
+
 
 /***************    RUTAS    ***************/
 app.use(require('./routes/appRoutes'));

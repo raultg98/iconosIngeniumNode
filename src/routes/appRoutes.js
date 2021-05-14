@@ -1,36 +1,15 @@
 const { Router } = require('express');
 
-// ESTO ES UN ARRAY DE OBJETOS, EL CUAL HE LEIDO DESDE 'Instal.dat'.
-const datos = require('../datosIconos');
-// console.log(datos);
-
-// ARRAY DE TODAS LAS LISTAS QUE TENEMOS DE ICONOS.
-let listaIconos = [
-    {
-        foto: '/img/icons.png', 
-        titulo: 'DEFAULT', 
-        numero: 200
-    }, {
-        foto: '/img/icons.png', 
-        titulo: 'Prueba',
-        numero: 200
-    }, {
-        foto: 'foto3', 
-        titulo: 'titulo3',
-        numero: 0
-    }];
-
 const router = Router();
 
+/********    RUTA /    ********/
 router.get('/', (req, res)=>{
     console.log('Estoy en la ruta: ', req.path);
-    
-    res.render('index', {
-        datos, 
-        listaIconos
-    });
+
+    res.render('index');
 });
 
+/********    RUTA /ADD    ********/
 router.get('/add', (req, res, next)=>{
     console.log('Estoy en la ruta /add');
 

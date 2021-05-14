@@ -1,23 +1,12 @@
-body{
+/* body{
     background-color: aqua;
+} */
+
+body{
+    min-width: 380px;
 }
 
-.div-icono{
-    max-width: 100%;
-    width: 100px;
-    overflow: hidden;
-    /* margin: 0 auto; */
-    padding: 0;
-    position: relative;
-}
-.div-icono img{
-    display: block;
-    max-width: none;
-    object-fit: 100px;
-    /* Quitar este width para verse en una sola columna */
-} 
-
-p{
+h5{
     margin: 0;
     padding: 0;
 }
