@@ -12,33 +12,17 @@ let listasDeIconos = [{
     numeroIconos: 200
 }];
 
-// YA DEJO METIDA LA LISTA POR DEFECTO AL ARRAT DE 'listasDeIconos'.
-
 fetch('../datos/listasSubidas.json')
 .then(res => res.json())
 .then(listas => {
     for(let i=0; i<listas.length; i++){
         listasDeIconos.push(listas[i]);
     }
-});
-
-// console.log(listasDeIconos)
-
-// LEO Y GUARDO LOS ICONOS QUE ESTAN EN LA CARPETA UPLOAD
-let iconosCustom = [];
-
-fetch('../datos/iconosCustom.json')
-.then(res => res.json())
-.then(iconos => {
-    for(let i=0; i<iconos.length; i++){
-        iconosCustom.push(iconos[i]);
-    }
-
+    
     recortarIconosLista();
-
-    console.log(listasDeIconos);
-    console.log(iconosRecortados)
 });
+
+console.log(listasDeIconos);
 
 // FUNCION QUE ME RECORTA TODOS LOS ICONOS DE LA LISTA ICONOS.
 function recortarIconosLista(){
@@ -82,24 +66,17 @@ function recortarIconosLista(){
 
             icono.src = listasDeIconos[j].foto;
 
-            // console.log(icono.src)
-
             canvas.setAttribute('id', `${listasDeIconos[j].titulo}-${i}`);
 
             iconosRecortados.push(canvas);
         }
     }
-    console.log(iconosRecortados.length);
+    console.log('Tamaño iconosRecortados: '+ iconosRecortados.length);
 }
 
+// console.log(iconosRecortados);
+console.log('Tamaño de la lista de Iconos: '+ listasDeIconos.length)
 
-function agregarCustoms(){
-
-}
-
-
-console.log('Tamaño de la lista de Iconos2: '+ listasDeIconos.length)
-// console.log(iconosRecortados.length)
 
 // TENGO QUE LEER EL JSON CON TODOS LOS DISPOSITIVOS PARA DESPUES MOSTRAR ESTOS. 
 // LE METO UN 'setTimeOut', PARA QUE LE DE TIEMPO A RECORTAR Y ALMACENAR LOS ICONOS.
@@ -267,13 +244,24 @@ setTimeout(function leerJSON() {
 }, 50);
 
 
+setTimeout(
+    function(){
+        const divPrueba = document.getElementById('prueba');
+        console.log(iconosRecortados)
+        let c = iconosRecortados[200].cloneNode(true);
+        c.getContext('2d').drawImage(iconosRecortados[200], 0, 0);
+
+        divPrueba.appendChild(c);
+    }
+, 300);
+
 /**
  * Función que me crea el acordeonPadre de un dispositivo en concreto. Este dispositivo tiene dos estados 
  * encendido o apagado, los cuales tienen su acordeonPadre diferente, pero el contenido de los dos es el 
  * mismo, solo le cambian las propiedad para que respondan de forma individual. Creo tanto acordeones como
  * el numero de objetos tenga en el array de listasDeIconos y otro más si tengo iconos personalizados subidos.
  * 
- * @param {*} dispositivo ,       Dispositivo al cual le estoy creando los acordeones
+ * @param { Number } dispositivo ,       Dispositivo al cual le estoy creando los acordeones
  * @param { -ON | -OFF } estado , Si el acordeon que estoy creando es para cuando el dispositivo esta
  *                                encendido o apagado
  * @param { div } nuevoIcono ,    Cuando yo le doy a unos de los iconos del acordeon quiero que se me ponga
@@ -288,8 +276,11 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
     acordeon.setAttribute('id', 'acordeonPadre');
     acordeonItem.setAttribute('class', 'accordion-item');
 
+    let iconosPintados = 0;
+
     // RECORRO LA LISTA DE LISTAS DE ICONOS, PARA SABER CUANDOS ACORDEONES TENGO QUE CREAR.
     for (let i=0; i<listasDeIconos.length; i++) {
+        console.log('Iconos pintados: '+ iconosPintados)
         // CREACION
         const acordeonHeader = document.createElement('h2');
         const acordeonBoton = document.createElement('button');
@@ -317,8 +308,11 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
         // ASIGNACIONES
         acordeonBoton.innerText = listasDeIconos[i].titulo.toUpperCase();
 
+        // let posicionLista = listasDeIconos[i].numeroIconos + j;
+
         // RECORRO LA LISTA DE ICONOS QUE TIENE ESA LISTA
-        for (let j=0; j<listasDeIconos[i].numeroIconos; j++) {
+        for (let j=iconosPintados; j<(iconosPintados + listasDeIconos[i].numeroIconos); j++) {
+            
 
             // CLONO EL ICONO DE LA LISTA
             let c = iconosRecortados[j].cloneNode(true);
@@ -337,54 +331,8 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
 
         acordeonItem.appendChild(acordeonHeader);
         acordeonItem.appendChild(acordeonCollapse);
-    }
 
-    // COMPRUEBO SI TENGO ALGUN ICONO PERSONALIZADO, EN CASO DE TENERLO CREO UN ACORDEON PARA ELLOS
-    if(iconosCustom.length > 0){
-        // CREACION
-        const acordeonHeader = document.createElement('h2');
-        const acordeonBoton = document.createElement('button');
-        const acordeonCollapse = document.createElement('div');
-        const acordeonBody = document.createElement('div');
-
-        // ESTILOS
-        acordeonHeader.setAttribute('class', 'accordion-header my-1');
-        acordeonHeader.setAttribute('id', `heading${dispositivo}${estado}-custom`);
-
-        acordeonBoton.setAttribute('class', 'accordion-button bg-primary text-white collapsed');
-        acordeonBoton.setAttribute('type', 'button');
-        acordeonBoton.setAttribute('data-bs-toggle', 'collapse');
-        acordeonBoton.setAttribute('data-bs-target', `#collapse${dispositivo}${estado}-custom`);
-        acordeonBoton.setAttribute('aria-expanded', 'false');
-        acordeonBoton.setAttribute('aria-controls', `collapse${dispositivo}${estado}-custom`);
-
-        acordeonCollapse.setAttribute('class', 'accordion-collapse collapse bg-drak text-warning');
-        acordeonCollapse.setAttribute('id', `collapse${dispositivo}${estado}-custom`);
-        acordeonCollapse.setAttribute('aria-labelledby', `heading${dispositivo}${estado}-custom`);
-        acordeonCollapse.setAttribute('data-bs-parent', '#acordeonPadre');
-
-        acordeonBody.setAttribute('class', 'accordion-body d-flex flex-wrap justify-content-between');
-
-        // ASIGNACIONES
-        acordeonBoton.innerText = 'CUSTOM';
-
-        for(let z=0; z<iconosCustom.length; z++){
-            const img = document.createElement('img');
-            img.src = iconosCustom[z];
-
-            img.addEventListener('click', (e) => {
-                mostrarIconoAcordeon(z, img);
-                console.log("Se ha pulsado el icono: " + (z + 1) + ' del acordeon CUSTOM del dispositivo: ' + (dispositivo + 1));
-            });
-
-            acordeonBody.appendChild(img);
-        }
-
-        acordeonCollapse.appendChild(acordeonBody);
-        acordeonHeader.appendChild(acordeonBoton);
-
-        acordeonItem.appendChild(acordeonHeader);
-        acordeonItem.appendChild(acordeonCollapse);
+        iconosPintados += listasDeIconos[i].numeroIconos;
     }
 
     acordeon.appendChild(acordeonItem);

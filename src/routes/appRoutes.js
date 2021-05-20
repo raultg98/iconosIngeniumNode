@@ -15,9 +15,9 @@ function cambiarTamnio(){
     let imagenes = [];
 
     // OBTENER EL NOMBRE DE LAS FOTOS Y LAS GUARDO EN UN ARRAY PARA TRABAJAR CON ELLAS.
-    filenames = fs.readdirSync(path.join(__dirname, '../public/img/upload'));
+    filenames = fs.readdirSync(path.join(__dirname, '../datos/img/upload'));
     filenames.forEach(file => {
-        imagenes.push(path.join(__dirname, '../public/img/upload/', file));
+        imagenes.push(path.join(__dirname, '../datos/img/upload/', file));
     });
 
     // RECORRO LAS IMAGENES QUE TENGO DENTRO DEL DIRECTORIO, LE CAMBIO LAS DIMENSIONES
@@ -55,19 +55,19 @@ const storage = multer.diskStorage({
         // COMPRUEBO SI EL ARCHIVO SUBIDO VIENE DEL 'iconToUpload', EN CASO DE SER ASI LO 
         // GUARDO EN UN DIRECTORIO DETERMINADO
         if(res.fieldname === 'iconToUpload'){
-            cb(null, path.join(__dirname, '../public/img/upload'));
+            cb(null, path.join(__dirname, '../datos/img/upload'));
         }else if(res.fieldname === 'listToUpload'){
             cb(null, path.join(__dirname, '../public/img/listas'));
         }
     },
     // LE DIGO COMO SE VAN A LLAMAR LAS FOTOS QUE ESTOY SUBIENDO
     filename: (req, res, cb) => {
+        // OBTENGO LA EXTENSION DE LA IMAGEN PARA DESPUES PORNERSELA AL FINAL DEL NUEVO NOMBRE
+        let extension = res.mimetype.split('/');
         // COMPRUEBO SI LA SUBIDA LA HE REALIZADO DESDE EL 'iconToUpload', EN CASO DE SER ASI
         // A LA FOTO LE DOY UN NOMBRE ALEATORIO PERO LE PONGO LA MISMA EXTENSION CON LA QUE SE
         // HA SUBIDO.
         if(res.fieldname === 'iconToUpload'){
-            // OBTENGO LA EXTENSION DE LA IMAGEN PARA DESPUES PORNERSELA AL FINAL DEL NUEVO NOMBRE
-            let extension = res.mimetype.split('/');
             // OBTENGO EL NUMERO DE MILISEGUNDOS DESDE 1970.
             let date = new Date().getTime();
             cb(null, date +'.'+ extension[1].toLowerCase());
@@ -75,7 +75,19 @@ const storage = multer.diskStorage({
         // EN CASO DE SUBIRSE DESDE EL 'listToUpload', GUARDO LA IMAGEN CON EL MISMO NOMBRE CON EL
         // QUE SE HA SUBIDO PERO TODO EN MINUSCULAS, PARA EVITAR CONFLICTOS.
         else if(res.fieldname === 'listToUpload'){
-            cb(null, res.originalname.toLowerCase());
+            // EXPRESION QUE ME VALIDA QUE NINGUNA LISTA QUE SUBA SE LLAME ASI.
+            let expresion = /custom.png|custom.jpeg|custom.jpg/i;
+
+            // COMPRUEBO SI LA LISTA QUE ESTOY SUBIENDO SE LLAMA IGUAL QUE LAS DECLARADAS EN LA EXP.REG
+            if(expresion.test(res.originalname)){
+                // EN CASO DE QUE TENGAN EL MISMO NOMBRE, SE LO CAMBIO POR 'listCustom.ext';
+                cb(null, ('listaCustom.'+ extension[1]));
+            }else{
+                // EN CASO DE QUE NO TENGA EL MISMO NOMBRE, LE PONGO EL NOMBRE CON EL QUE ME LA SUBISTES.
+                cb(null, res.originalname.toLowerCase());
+            }
+
+            // cb(null, res.originalname.toLowerCase());
         }
     }
 });
