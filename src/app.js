@@ -1,11 +1,28 @@
 /***************    IMPORTS    ***************/
 const express = require('express');
 const morgan = require('morgan');
-const multer = require('multer');
 const path = require('path');
+const exec = require('child_process').exec;
 
-const iconosSubidos = require('./listarUpload');
-console.log("Archivos en upload: "+ iconosSubidos);
+// EJECUTO ESTOS SCRIPTS NADA MAS COMENZAR EL SERVER ASI ME ASEGURO QUE HE CREADO 
+// ARCHIVOS JSON QUE SON NECESARIOS PARA EL CLIENTE.
+exec('node \serverScripts/obtenerDatosInstal.js', (err, stdout) => {
+    if(err) throw err;
+
+    console.log('obtenerDatosInstal EJECUTADO');
+});
+
+exec('node \serverScripts/obtenerIconosCustom.js', (err, stdout) => {
+    if(err) throw err;
+
+    console.log('obtenerIconosCustom EJECUTADO')
+});
+
+exec('node \serverScripts/obtenerListasSubidas.js', (err, stdout) => {
+    if(err) throw err;
+
+    console.log('obtenerIconosCustom EJECUTADO')
+});
 
 const app = express();
 
@@ -23,27 +40,17 @@ app.set('views', __dirname + '/views');
 // el status y el tiempo que tardo la peticion.
 app.use(morgan('dev'));
 
-// GUARDO EL ARCHIVO SUBIDO EN LA CARPETA.
-const storage = multer.diskStorage({
-    destination: __dirname + app.get('pathSubida'),
-    filename: (req, file, cb)=>{
-        cb(null, ('custom_' + iconosSubidos + '.jpg'));
-    }
-});
-
-app.use(multer({storage}).single('fileToUpload'));
-
 
 /***************    RUTAS    ***************/
 app.use(require('./routes/appRoutes'));
 
 
-/***************    ARCHIVOS ESTATICOS    ***************/
+/***************    STATIC FILES    ***************/
 app.use(express.static(path.join(__dirname, 'public')));
 
 
 // let port = process.env.POST || '5000';
 app.listen(app.get('port'), ()=>{
-    console.log('Nombre de la aplicación: '+ app.get('appName'))
+    // console.log('Nombre de la aplicación: '+ app.get('appName'))
     console.log('Server on port: ', app.get('port'));
 });

@@ -1,6 +1,6 @@
-/* body{
+body{
     background-color: aqua;
-} */
+}
 
 body{
     min-width: 380px;
@@ -9,4 +9,10 @@ body{
 h5{
     margin: 0;
     padding: 0;
+}
+
+.logo{
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
 }
