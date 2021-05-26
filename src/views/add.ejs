@@ -1,11 +1,38 @@
 <%- include('template/cabecera.ejs', {titulo: 'Iconos Ingen1um'}) %>
 
-<form action="" method="POST" enctype="multipart/form-data">
-    <div class="form-group my-4 mx-4">
-        <input type="file" name="fileToUpload" class="form-control-file"><br><br>
-    
-        <button type="submit" class="btn btn-outline-primary">Subir</button>
+
+<form method="POST" enctype="multipart/form-data" class="row m-4">
+
+    <div class="col-md-6 col-sm-12">
+        <h3 class="text-center text-primary">SUBE UN ICONO</h3>
+
+        <input type="file" name="iconToUpload" class="form-control my-3 archivo btn btn-outline-primary" multiple>
     </div>
+
+    <div class="col-md-6 col-sm-12">
+        <h3 class="text-center text-primary">SUBE UNA LISTA DE ICONOS</h3>
+
+        <input type="file" name="listToUpload" class="form-control my-3 archivo btn btn-outline-primary">
+    </div>
+
+    <div>
+        <button type="submit" id="btnSubmit" class="btn btn-outline-primary col-12 my-3">
+            <i class="fas fa-upload mx-2"></i> Upload files
+        </button>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-sm-12 d-flex justify-content-around align-items-start flex-wrap" id="iconPreview">
+
+        </div>
+    
+        <div class="col-md-6 col-sm-12 d-flex justify-content-center" id="listPreview">
+    
+        </div>
+    </div>
+    
 </form>
+
+<script src="/js/previewUpload.js"></script>
 
 <%- include('template/footer.ejs') %>

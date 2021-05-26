@@ -1,30 +1,37 @@
 const divContenedor = document.getElementById('divPadre');
 // divContenedor.setAttribute('class', 'd-flex justify-content-center')
 
+// ARRAY QUE CONTENDRA LOS ICONOS DE TODAS LAS LISTAS DE ICONOS.
 let iconosRecortados = [];
 
 // ARRAY DE OBJETOS QUE CONTIENEN TODAS LAS LISTAS DE ICONOS. CADA OBJETO CONTIENE LA UBICACION DE LA 
 // IMAGEN, EL TITULO Y EL NUMERO DE ICONOS QUE TIENE LA LISTA.
 let listasDeIconos = [{
     foto: '/img/icons.png',
-    titulo: 'DEFAULT',
+    titulo: 'default',
     numeroIconos: 200
-}
-    // OTRA LISTA DE ICONOS
-//     , {
-//         foto: '',
-//         titulo: 'PRUEBA',
-//         numeroIconos: 0
-// }
-];
+}];
+
+fetch('../datos/listasSubidas.json')
+.then(res => res.json())
+.then(listas => {
+    for(let i=0; i<listas.length; i++){
+        listasDeIconos.push(listas[i]);
+    }
+    
+    recortarIconosLista();
+});
+
+console.log(listasDeIconos);
 
 // FUNCION QUE ME RECORTA TODOS LOS ICONOS DE LA LISTA ICONOS.
-function recortarIconosLista() {
+function recortarIconosLista(){
     // RECORRO EL ARRAY CON TODAS LAS LISTA DE ICONOS
-    for (let j = 0; j < listasDeIconos.length; j++) {
+    for (let j=0; j<listasDeIconos.length; j++) {
 
+        console.log('Tamaño de la lista de Iconos: '+ listasDeIconos.length)
         // RECORRO LOS ICONOS DE CADA LISTA.
-        for (let i = 0; i < listasDeIconos[j].numeroIconos; i++) {
+        for (let i=0; i<listasDeIconos[j].numeroIconos; i++) {
             const canvas = document.createElement('canvas');
             const contexto = canvas.getContext('2d');
 
@@ -37,6 +44,7 @@ function recortarIconosLista() {
 
             // ICONOS DE LA PRIMERA COLUMNA (i < 100)
             if (i < (numIconos / 2)) {
+                // console.log(listasDeIconos[j].foto)
                 inicioX = 0;
                 inicioY = i * ancho_alto;
             }
@@ -58,27 +66,42 @@ function recortarIconosLista() {
 
             icono.src = listasDeIconos[j].foto;
 
-            canvas.setAttribute('id', i);
+            canvas.setAttribute('id', `${listasDeIconos[j].titulo}-${i}`);
 
             iconosRecortados.push(canvas);
         }
     }
+    console.log('Tamaño iconosRecortados: '+ iconosRecortados.length);
 }
-recortarIconosLista();
+
+// console.log(iconosRecortados);
+console.log('Tamaño de la lista de Iconos: '+ listasDeIconos.length)
 
 
-// TENGO QUE LEER EL JSON CON TODOS LOS DISPOSITIVOS PARA DESPUES MOSTRAR ESTOS.
+// TENGO QUE LEER EL JSON CON TODOS LOS DISPOSITIVOS PARA DESPUES MOSTRAR ESTOS. 
+// LE METO UN 'setTimeOut', PARA QUE LE DE TIEMPO A RECORTAR Y ALMACENAR LOS ICONOS.
 setTimeout(function leerJSON() {
     fetch('../datos/Instal.json')
         .then(res => res.json())
         .then(componentes => {
             const fragmento = document.createDocumentFragment();
 
+            const divBonton = document.createElement('div');
+            const botonEnviar = document.createElement('button');
+
+            divBonton.setAttribute('class', 'row mx-3 mt-3');
+            botonEnviar.setAttribute('type', 'submit');
+            botonEnviar.setAttribute('class', 'col-12 btn btn-outline-primary');
+
+            botonEnviar.innerText = 'GUARDAR CAMBIOS';
+
+            divBonton.appendChild(botonEnviar);
+
             // RECORRO TODOS LOS DISPOSTIVOS
             for (let i=0; i<componentes.length; i++) {
                 // CREACION
                 const dispositivo = document.createElement('div');
-                const nombre = document.createElement('h1');
+                const nombreDipositivo = document.createElement('h1');
                 const divEncendido = document.createElement('div');
                 const divApagado = document.createElement('div');
                 const encabezadoEncendido = document.createElement('h5');
@@ -93,13 +116,11 @@ setTimeout(function leerJSON() {
                 const nuevoIconoApagado = document.createElement('div');
                 const acordeon1 = document.createElement('div');
                 const acordeon2 = document.createElement('div');
-                const formulario = document.createElement('form');
-                const botonEnviar = document.createElement('button');
 
                 // ESTILOS
-                dispositivo.setAttribute('class', 'row mx-3 my-5 border border-2 border-primary rounded');
+                dispositivo.setAttribute('class', 'row mx-3 mt-3 mb-4 border border-2 border-primary rounded');
 
-                nombre.setAttribute('class', 'text-center text-primary');
+                nombreDipositivo.setAttribute('class', 'text-center text-primary');
 
                 encabezadoEncendido.setAttribute('class', 'my-1 text-primary');
                 encabezadoApagado.setAttribute('class', 'my-1 text-primary');
@@ -107,8 +128,8 @@ setTimeout(function leerJSON() {
                 divEncendido.setAttribute('class', 'col-md-6 col-sm-12');
                 divApagado.setAttribute('class', 'col-md-6 col-sm-12');
 
-                encendido.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 border border-2 border-primary rounded');
-                apagado.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 border border-2 border-primary rounded');
+                encendido.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 my-3 border border-2 border-primary rounded');
+                apagado.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 my-3 border border-2 border-primary rounded');
                 flecha1.setAttribute('class', 'fas fa-arrow-right text-primary');
                 flecha2.setAttribute('class', 'fas fa-arrow-right text-primary');
 
@@ -116,22 +137,18 @@ setTimeout(function leerJSON() {
 
                 nuevoIconoEncendido.setAttribute('class', `nuevoIcono-ON${i}`);
 
-                formulario.setAttribute('class', 'my-3');
-                botonEnviar.setAttribute('class', 'col-12 btn btn-primary border-2');
-
 
                 // VALORES
-                nombre.innerText = componentes[i].nombre;
+                nombreDipositivo.innerText = componentes[i].nombre;
                 
                 encabezadoEncendido.innerText = 'Encendido';
                 encabezadoApagado.innerText = 'Apagado';
-                
-                botonEnviar.innerText = 'Guardar Cambios';
+
 
                 // ICONOS
+                // OBTENGO LA POSICION QUE TIENE EL ICONO
                 let posicion = parseInt(componentes[i].icono);
 
-                // HAY VECES QUE AL RECARGAR LA PAGINA NO SE CARGAN BIEN LOS ICONOS DE CADA DISPOSITIVO.
                 let posicionEncendido = -1;
                 let posicionApagado = -1;
 
@@ -169,7 +186,7 @@ setTimeout(function leerJSON() {
                 nuevoIconoApagado.style.opacity = '0.5';
 
 
-                    // EVENTOS
+                // EVENTOS
                 encendido.addEventListener('click', () => {
                     let enc = '-ON';
 
@@ -214,24 +231,43 @@ setTimeout(function leerJSON() {
                 divApagado.appendChild(apagado);
                 divApagado.appendChild(acordeon2)
 
-                formulario.appendChild(botonEnviar);
-
-                dispositivo.appendChild(nombre);
+                dispositivo.appendChild(nombreDipositivo);
                 dispositivo.appendChild(divEncendido);
                 dispositivo.appendChild(divApagado);
-                dispositivo.appendChild(formulario);
-                    // dispositivo.appendChild(acordeon);
 
                 fragmento.appendChild(dispositivo);
-                
             }
 
+            divContenedor.appendChild(divBonton);
             divContenedor.appendChild(fragmento);
         })
-}, 10);
-// leerJSON();
+}, 50);
 
 
+setTimeout(
+    function(){
+        const divPrueba = document.getElementById('prueba');
+        console.log(iconosRecortados)
+        let c = iconosRecortados[200].cloneNode(true);
+        c.getContext('2d').drawImage(iconosRecortados[200], 0, 0);
+
+        divPrueba.appendChild(c);
+    }
+, 300);
+
+/**
+ * Función que me crea el acordeonPadre de un dispositivo en concreto. Este dispositivo tiene dos estados 
+ * encendido o apagado, los cuales tienen su acordeonPadre diferente, pero el contenido de los dos es el 
+ * mismo, solo le cambian las propiedad para que respondan de forma individual. Creo tanto acordeones como
+ * el numero de objetos tenga en el array de listasDeIconos y otro más si tengo iconos personalizados subidos.
+ * 
+ * @param { Number } dispositivo ,       Dispositivo al cual le estoy creando los acordeones
+ * @param { -ON | -OFF } estado , Si el acordeon que estoy creando es para cuando el dispositivo esta
+ *                                encendido o apagado
+ * @param { div } nuevoIcono ,    Cuando yo le doy a unos de los iconos del acordeon quiero que se me ponga
+ *                                en el div nuevoIconoEstado para yo asi poder ver el cambio de iconos que hago.                     
+ * @returns Devuelvo el acordeonPadre con todos sus respectivos acordeones.
+ */
 function crearAcordeones(dispositivo, estado, nuevoIcono) {
     const acordeon = document.createElement('div');
     const acordeonItem = document.createElement('div');
@@ -240,8 +276,11 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
     acordeon.setAttribute('id', 'acordeonPadre');
     acordeonItem.setAttribute('class', 'accordion-item');
 
+    let iconosPintados = 0;
+
     // RECORRO LA LISTA DE LISTAS DE ICONOS, PARA SABER CUANDOS ACORDEONES TENGO QUE CREAR.
     for (let i=0; i<listasDeIconos.length; i++) {
+        console.log('Iconos pintados: '+ iconosPintados)
         // CREACION
         const acordeonHeader = document.createElement('h2');
         const acordeonBoton = document.createElement('button');
@@ -267,10 +306,13 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
         acordeonBody.setAttribute('class', 'accordion-body d-flex flex-wrap justify-content-between');
 
         // ASIGNACIONES
-        acordeonBoton.innerText = listasDeIconos[i].titulo;
+        acordeonBoton.innerText = listasDeIconos[i].titulo.toUpperCase();
+
+        // let posicionLista = listasDeIconos[i].numeroIconos + j;
 
         // RECORRO LA LISTA DE ICONOS QUE TIENE ESA LISTA
-        for (let j=0; j<listasDeIconos[i].numeroIconos; j++) {
+        for (let j=iconosPintados; j<(iconosPintados + listasDeIconos[i].numeroIconos); j++) {
+            
 
             // CLONO EL ICONO DE LA LISTA
             let c = iconosRecortados[j].cloneNode(true);
@@ -278,7 +320,7 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
 
             c.addEventListener('click', () => {
                 mostrarIconoAcordeon(j, nuevoIcono);
-                console.log("Se ha pulsado el icono: " + (j + 1) + ' del dispositivo: ' + (dispositivo + 1));
+                console.log("Se ha pulsado el icono: " + (j + 1) + ' del acordeon '+ listasDeIconos[i].titulo + ' del dispositivo: ' + (dispositivo + 1));
             });
 
             acordeonBody.appendChild(c);
@@ -289,8 +331,9 @@ function crearAcordeones(dispositivo, estado, nuevoIcono) {
 
         acordeonItem.appendChild(acordeonHeader);
         acordeonItem.appendChild(acordeonCollapse);
-    }
 
+        iconosPintados += listasDeIconos[i].numeroIconos;
+    }
 
     acordeon.appendChild(acordeonItem);
 
@@ -309,6 +352,7 @@ function mostrarIconoAcordeon(posicion, nuevoIcono){
 
     nuevoIcono.appendChild(icono);
 }
+
 
 // function timer(icono) {
 //     setTimeout(function () {
