@@ -1,10 +1,16 @@
 <%- include('template/cabecera.ejs', {titulo: 'ICONOS INGENIUM'}) %>
 
-<div id="prueba"></div>
+<form action="/" method="POST" class="row mx-3 my-4" id="formulario">
+
+    <button type="submit" id="botonEnviar" class="col-12 btn btn-outline-primary">
+        GUARDAR CAMBIOS
+    </button>
+
+</form>
 
 <div id="divPadre"></div>
 
 <script src="/js/mostrarIcono.js"></script>
+<script src="/js/enviarDatos.js"></script>
 
-<%- include('template/footer.ejs') %> 
-<!-- <canvas class="canvasIconoActual" id="<%# datos[i].icono %>"></canvas> -->
+<%- include('template/footer.ejs') %>
