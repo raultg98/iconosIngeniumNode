@@ -1,16 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const sizeOf = require('image-size');
-const execSync = require('child_process').exec;
-
-execSync('node \serverScripts/obtenerIconosCustom.js', (err, stdout) => {
-    if(err) throw err;
-    
-    console.log('obtenerIconosCustom EJECUTADO')
-});
-
-
-
 
 // RUTA DONDE TENGO ALMACENADAS MIS LISTAS SUBIDAS (CLIENTE).
 let pathLista = path.join(__dirname, '../public/img/listas/');
