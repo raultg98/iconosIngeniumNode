@@ -20,78 +20,104 @@ let listaIconosCol2 = [];
 // MITAD DEL TAMAÑO LOS GUARDO EN UN ARRAY O EN OTRO
 for(let i=0; i<iconos.length; i++){
     // LO GUARDO EN EL PRIMER ARRAY
-    if(iconos.length/2 >= i){
+    if(iconos.length/2 > i){
         listaIconosCol1.push(pathIconos + iconos[i]);
     }else{
         listaIconosCol2.push(pathIconos + iconos[i]);
     }
 }
 
+
+// NOMBRE QUE VA A TENER LA IMAGEN FUSIONA DE LA PRIMERA MITAD DE ICONOS
 let nombreImgCol1 = 'columna1.png';
+// NOMBRE QUE VA A TENER LA IMAGEN FUSIONA DE LA SEGUNDA MITAD DE ICONOS.
 let nombreImgCol2 = 'columna2.png';
+// NOMBRE QUE VA A TENER LA IMAGEN FUSIONADA DE LAS DOS COLUMNAS
 let listaCustomNombre = 'custom.png';
 
+// NOMBRE Y RUTA QUE VA A TENER LA PRIMERA COLUMNA DE LA LISTA DE ICONOS CUSTOM
 let columna1 = (pathColumna + nombreImgCol1);
+// NOMBRE Y RUTA QUE VA A TENER LA SEGUNDA COLUMNA DE LA LISTA DE ICONOS CUSTOM
 let columna2 = (pathColumna + nombreImgCol2);
+// NOMBRE Y RUTA QUE VA A TENER LA FUSION DE LA PRIMERA Y DE LA SEGUNDA COLUMNA
 let listaCustom = path.join(__dirname, '../public/img/listas/' + listaCustomNombre);
 
 
-// AHORA TENGO QUE JUNTAR LOS ICONOS DE CADA COLUMNA EN UNA SOLA FOTO
-// Y QUE ESA UNION SE HAGA EN VERTICAL
+if(listaIconosCol1.length > 1){
+    /**
+     * CON ESTA FUNCION CONSIGO FUSIONAR DOS O MAS IMAGENES EN UNA SOLA, ESTA FUSION SE HACE EN VERTICAL
+     * Y LA IMAGEN RESULTANTE DE ESTA FUSION ES UNA DE LAS COLUMNAS DE MI LISTA DE ICONOS CUSTOM.
+     * 
+     * @param { Array } listaIconosCol1 ,  Lista que contiene el nombre y la ruta donde estan 
+     *                                     guardas las imagenes que deseamos juntar
+     * @param { Object } direction ,       Podemos juntar las imagenes de dos formas, horizonatalmente 
+     *                                     verticalmente. ( TRUE == horizontal | FALSE = verticalmente ).
+     * @param { String } columna1,         Nombre y ruta donde se va a guardar la nueva imagen (fusionada). 
+     */
+    function fusionarCol1(){
+        mergeImg(listaIconosCol1,  { direction: true })
+        .then((img) => {
+            img.write(columna1, (err) => {
+                if(err) throw err;
 
-/**
- * Con mergeImg consigo fusionar dos o mas imagenes en una sola.
- * 
- * @param { Array } listaIconosCol1 ,  Lista que contiene el nombre y la ruta donde estan 
- *                                     guardas las imagenes que deseamos juntar
- * @param { Object } direction ,       Podemos juntar las imagenes de dos formas, horizonatalmente 
- *                                     verticalmente. ( TRUE == horizontal | FALSE = verticalmente ).
- * @param { String } columna1,         Nombre y ruta donde se va a guardar la nueva imagen (fusionada). 
- */
-function fusionarCol1(){
-    mergeImg(listaIconosCol1,  { direction: true })
-    .then((img) => {
-        img.write(columna1, (err) => {
-            if(err) throw err;
-
-            console.log('Se han juntado correctamente');
+                console.log('Se han juntado correctamente');
+            });
         });
-    });
-}fusionarCol1();
+    }fusionarCol1();
+}
 
-
-/**
- * Con mergeImg consigo fusionar dos o mas imagenes en una sola.
- * 
- * @param { Array } listaIconosCol2 ,  Lista que contiene el nombre y la ruta donde estan 
- *                                     guardas las imagenes que deseamos juntar
- * @param { Object } direction ,       Podemos juntar las imagenes de dos formas, horizonatalmente 
- *                                     verticalmente. ( TRUE == horizontal | FALSE = verticalmente ).
- * @param { String } columna2,         Nombre y ruta donde se va a guardar la nueva imagen (fusionada). 
- */
-function fusionarCol2(){
-    mergeImg(listaIconosCol2,  { direction: true })
-    .then((img) => {
-        img.write(columna2, (err) => {
-            if(err) throw err;
-    
-            console.log('Se han juntado correctamente');
+if(listaIconosCol2.length > 1){
+    /**
+     * CON ESTA FUNCION CONSIGO FUSIONAR DOS O MAS IMAGENES EN UNA SOLA, ESTA FUSION SE HACE EN VERTICAL
+     * Y LA IMAGEN RESULTANTE DE ESTA FUSION ES UNA DE LAS COLUMNAS DE MI LISTA DE ICONOS CUSTOM.
+     * 
+     * @param { Array } listaIconosCol2 ,  Lista que contiene el nombre y la ruta donde estan 
+     *                                     guardas las imagenes que deseamos juntar
+     * @param { Object } direction ,       Podemos juntar las imagenes de dos formas, horizonatalmente 
+     *                                     verticalmente. ( TRUE == horizontal | FALSE = verticalmente ).
+     * @param { String } columna2,         Nombre y ruta donde se va a guardar la nueva imagen (fusionada). 
+     */
+    function fusionarCol2(){
+        mergeImg(listaIconosCol2,  { direction: true })
+        .then((img) => {
+            img.write(columna2, (err) => {
+                if(err) throw err;
+        
+                console.log('Se han juntado correctamente');
+            });
         });
-    });
-}fusionarCol2();
+    }fusionarCol2();
+}
 
+/*
+* EXISTEN 4 CASOS DIFERENTES A LA HORA DE CREAR LA LISTA DE ICONOS CUSTOM. ESTOS CASOS VAN EN FUNCION DE 
+* LOS ICONOS QUE TENGO SUBIDOS AL SERVIDOR.
+*/
+// CASO 1: CUANDO HAY 4 O MAS ICONOS SUBIDOS
+if((listaIconosCol1.length > 1) && (listaIconosCol2.length > 1)){
+    fusionCols([columna1, columna2]);
+}
+// CASO 2: CUANDO HAY 3 ICONOS SUBIDOS
+else if((listaIconosCol1.length > 1) && (listaIconosCol2.length === 1)){
+    fusionCols([columna1, listaIconosCol2[0]]);
+}
+// CASO 3: CUANDO SOLAMENTE HAY DOS ICONOS SUBIDOS
+else if((listaIconosCol1.length === 1) && (listaIconosCol2.length === 1)){
+    fusionCols([listaIconosCol1[0], listaIconosCol2[0]]);
+}
+// CASO 4: CUANDO HAY UN UNICO ICONO SUBIDO
+// else if((listaIconosCol1.length === 1) && (listaIconosCol2.length < 1)){ }
 
 /**
-* Con mergeImg consigo fusionar dos o mas imagenes en una sola.
- * 
- * @param { Imagen } columna1 ,  Imagen fusionada de la primera mitad de iconos custom
- * @param { Imagen } columna2 ,  Imagen fusionada de la segunda mitad de iconos custom
- * @param { Object } direction , Podemos juntar las imagenes de dos formas, horizonatalmente 
- *                               verticalmente. ( TRUE == horizontal | FALSE = verticalmente ).
- * @param { String } listaCustom,   Nombre y ruta donde se va a guardar la nueva imagen (fusionada). 
- */
-function fusionCols(){
-    mergeImg([columna1, columna2], { direction: false })
+    * CON ESTA FUNCION CONSIGO FUSIONAR LAS IMAGENES PASADAS COMO PARAMETRO.
+    * 
+    * @param { Array } arrayImagenes ,  Array que contiene las imagenes las cuales se quieren fusionar.
+    * @param { Object } direction ,     Podemos juntar las imagenes de dos formas, horizonatalmente 
+    *                                   verticalmente. ( TRUE == horizontal | FALSE = verticalmente ).
+    * @param { String } listaCustom,    Nombre y ruta donde se va a guardar la nueva imagen (fusionada). 
+    */
+ function fusionCols(arrayImagenes){
+    mergeImg(arrayImagenes, { direction: false })
     .then((img) => {
         img.write(listaCustom, (err) => {
             if(err) throw err;
@@ -99,4 +125,4 @@ function fusionCols(){
             console.log('Se han juntado correctamente');
         });
     });
-}fusionCols();
+}

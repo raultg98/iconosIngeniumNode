@@ -14,7 +14,7 @@ iconToUpload.addEventListener('change', (e) => {
     }
 
     let cantidad = e.target.files.length;
-    console.log(cantidad);
+    // console.log(cantidad);
 
     for(let i=0; i<cantidad; i++){
         let reader = new FileReader();

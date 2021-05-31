@@ -1,10 +1,13 @@
 const { Router } = require('express');
 const multer = require('multer');
 const path = require('path');
-const { v4 } = require('uuid');
 const fs = require('fs');
 const resizeImg = require('resize-img');
 const exec = require('child_process').exec;
+const Jimp = require('jimp');
+const sizeOf = require('image-size');
+const { type } = require('os');
+
 
 const router = Router();
 
@@ -100,15 +103,112 @@ let upload = multer({
 }).fields([{ name: 'iconToUpload' }, { name: 'listToUpload' }]);
 
 
+/**
+ * CREACION DE ALGO MUY SIMILAR A UN CONTROLADOR, PARA ASI TENER EL CODIGO MAS ENTENDIBLE.
+ * ESTA FUNCION ES FLECHA ES LLAMADA DESDE LA PETICION 'router.post('/')'
+ * 
+ * @param { Object } req, Datos recibidos desde el cliente al hacer la peticion
+ * @param { Object } res, Datos enviados desde el servidor al hacer dicha peticion
+ */
+const recortarIconos = async (req, res) => {
+    /*
+        1. OBTENGO EL ARRAY CON TODOS LOS DATOS DE LOS NUEVOS ICONOS.
+        2. RECORTO TODOS LOS ICONOS. CUANDO LOS RECORTE TENGO QUE 
+           COMPROBAR SI YA HE RECORTADO ESE ICONO ANTES
+        3. CREO UNA LISTA DE ICONOS CON TODOS ESOS RECORTES.
+        4. ELIMINO ESOS RECORTES. ???
+    */
+    // ARRAY QUE CONTIENE EL NOMBRE DE LA LISTA Y LA POSICION DEL ICONO EN DICHA LISTA.
+    // ESTOS DATOS SON OBTENIDOS DEL DIV 'nuevoIcono' AL HACER CLICK EN EL BOTON 
+    // 'Guardar Cambios'. (nombreLista-posicionIcono)
+    const iconosInput = req.body.input;
+    console.log(iconosInput);
+    
+    // UBICACION DONDE SE VAN A GUARDAR LOS RECORTES DE LAS LISTAS DE ICONOS
+    const pathRecortes = path.join(__dirname, '../datos/img/recortes/');
+    // UBICACION DONDE ESTAN LAS LISTAS DE LOS ICONOS.
+    const pathListas = path.join(__dirname, '../public/img/listas/');
+
+    // RECORRO LA LISTA DE TODOS LOS ICONOS QUE HE RECIBIDO DESDE EL CLIENTE.
+    for(let i=0; i<iconosInput.length; i++){
+
+        // SEPARO LA LISTA DE ICONO A LA QUE PERTENECE Y LA POSICION DE ESA LISTA.
+        const listaPosIcono = iconosInput[i].split('-');
+
+        // OBETENGO EL NOMBRE DE LA LISTA DE ICONOS CON LA EXTENSION QUE ESTA TIENE
+        const listaIcono = listaPosIcono[0] +'.png';
+
+        // OBTENGO LA POSICION QUE TIENE EL ICONO EN LA LISTA DE ICONOS
+        const posicionIcono = parseInt(listaPosIcono[1]);
+
+        // OBTENGO LA UBICACION Y NOMBRE QUE VA A TENER EL RECORTE
+        // path\'nombreLista - posicionIconoEnLaListaDeIconos' .png
+        // C:\Users\Ingenium\Desktop\Iconos\src\datos\img\recortes\default-0.png
+        const pathConNombreRecorte = pathRecortes + iconosInput[i] + '.png';
+
+        // OBTENGO EL NOMBRE Y LA EXTENSION DEL RECORTE. (default-0.png)
+        const nombreRecorte = iconosInput[i] + '.png';
+
+        // LISTO TODOS LOS ICONOS RECORTADOS QUE TENGO, PARA ASI DESPUES NO RECORTAT UN
+        // ICONO MAS DE UNA VEZ.
+        const recortes = fs.readdirSync(pathRecortes);
+
+        // HAGO LA COMPROBACION DE QUE SI EL ICONO YA LO HE RECORTADO CON ANTERIORIDAD
+        if(!recortes.includes(nombreRecorte)){
+            // OBTENGO LA LISTA DE ICONOS DEL ICONO QUE QUIERO RECORTAR.
+            const iconoRecortado = await Jimp.read(pathListas + listaIcono);
+
+            // TENGO QUE SABER EL TAMAÑO QUE TIENE LA LISTA, PARA SABER SI EL
+            // ICONO ES DE LA PRIMERA O DE LA SEGUNDA COLUMNA
+            const numIconosLista = (sizeOf(pathListas + listaIcono).height/100);
+
+            // console.log('Posicion: '+ i + ', '+ recortes.includes(aux) +', ICONO: ' +iconosInput[i]);
+        
+            // PRIMERA COLUMNA
+            if(posicionIcono < numIconosLista){
+                // RECORTO EL ICONO: .crop(x, y, ancho, alto).
+                // x === 0 ====> Primera Columna
+                // x === 100 ==> Segunda Columna
+                iconoRecortado.crop(0, (posicionIcono*100), 100, 100);
+            }
+            // SEGUNDA COLUMNA
+            else{
+                iconoRecortado.crop(100, ((posicionIcono-100)*100), 100, 100);
+            }
+    
+            iconoRecortado.write(pathConNombreRecorte);
+        }
+    }
+
+    res.render('index'); 
+}
+
+
 /********    RUTA /    ********/
 router.get('/', (req, res) => {
     console.log('Estoy en la ruta: ', req.path);
 
+    exec('node \serverScripts/obtenerIconosCustom.js', (err, stdout) => {
+        if(err) throw err;
+    
+        console.log('obtenerIconosCustom EJECUTADO')
+    });
+
+
+    exec('node \serverScripts/obtenerListasSubidas.js', (err, stdout) => {
+        if(err) throw err;
+
+        console.log('obtenerIconosCustom EJECUTADO')   
+    });
+
     res.render('index');
 });
 
+router.post('/', recortarIconos);
+
+
 /********    RUTA /ADD    ********/
-router.get('/add', (req, res, next) => {
+router.get('/add', (req, res) => {
     console.log('Estoy en la ruta /add');
 
     res.render('add');
@@ -136,9 +236,3 @@ router.post('/add', upload, (req, res) => {
 });
 
 module.exports = router;
-
-/* 
-    1. ARREGLAR FILEFILTER
-    2. PODER SUBIR MUCHAS IMAGENES DESDE EL INPUT DEL ICONO
-    3. ARREGLAR EL BOTON DEL FORMULARIO DE LA PARTE DEL CLIENTE.
-*/

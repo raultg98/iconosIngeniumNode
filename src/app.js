@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const exec = require('child_process').exec;
+const bodyParser = require('body-parser');
 
 // CON ESTE SCRIPT LO QUE CONSIGO ES PASAR LOS DATOS DE 'Instal.dat' AL CLIENTE 
 // MEDIANTE UN ARCHIVO JSON LLAMADO 'Instal.json'
@@ -15,6 +16,7 @@ exec('node \serverScripts/obtenerDatosInstal.js', (err, stdout) => {
 exec('node \serverScripts/obtenerIconosCustom.js', (err, stdout) => {
     if(err) throw err;
 });
+
 
 // CON ESTE SCRIPT CREO UN JSON QUE TIENE UN OBJETO CON LOS DATOS DE CADA LISTA 
 // DE ICONOS QUE EL CLIENTE ME HA SUBIDO, MAS LA IMAGEN FUSIONA DE LOS ICONOS CUSTOM
@@ -38,6 +40,7 @@ app.set('views', __dirname + '/views');
 // Morgan me dice por consola la peticion que estoy haciendo, la ruta
 // el status y el tiempo que tardo la peticion.
 app.use(morgan('dev'));
+app.use(bodyParser.urlencoded({ extended: false }))
 
 
 /***************    RUTAS    ***************/
