@@ -59,7 +59,6 @@ controller.recortarIconos = async (req, res) => {
             // LISTO TODOS LOS ICONOS QUE YA TENGO RECORTADOS
             const recortes = fs.readdirSync(pathIconosRecortados, (err, data) => {
                 if(err) console.error(err);
-                console.log('LEIDO')
             });
 
             // COMPRUEBO SI EL ICONO QUE TENGO AHORA MISMO YA LO TENGO RECORTADO O SI ES UN ICONO
@@ -92,7 +91,7 @@ controller.recortarIconos = async (req, res) => {
                 }
 
                 iconoRecortado.write(pathIconosRecortados + nombreRecorte, (err) => {
-                    if(err) throw err;
+                    if(err) console.error(err);
                 });
             }
         }
@@ -120,10 +119,7 @@ controller.recortarIconos = async (req, res) => {
                 const pathUpload = path.join(__dirname, '../datos/img/upload/');
 
                 const imgSubidas = fs.readdirSync(pathUpload, (err) => {
-                    if(err) {
-                        console.error(err);
-                        console.log('Error: '+ pathUpload);
-                    }
+                    if(err) console.error(err);
                 });
 
                 let imgON, imgOFF;
@@ -156,15 +152,6 @@ controller.recortarIconos = async (req, res) => {
             }
         }
 
-        // // const listaFusiones = async () => {
-        //     fs.readdir(pathFusiones, (err) => {
-        //         if(err) console.error(err);
-        //         console.log('Se han leido correactamente las fusiones');
-        //     })
-        // // }
-
-
-        
         const listaFusiones = fs.readdirSync(pathFusiones, (err) => {
             if(err) console.error(err);
             console.log('Se han leido correctamente las fusiones');
@@ -172,7 +159,6 @@ controller.recortarIconos = async (req, res) => {
 
         setTimeout(() => {
             
- 
             /**
              * VOY A ORDENAR LAS FUSIONES, PORQUE SI NO LAS ORDENO Y TENGO POR EJEMPLO 3 DISPOSITIVOS (1, 2, 11).
              * LA FUSION EN VERTICAL DE ESTOS 3 DISPOSITIVOS SERIA 1, 11, 2. Y NOSOTROS QUEREMOS QUE NOS LOS 
@@ -248,7 +234,6 @@ controller.recortarIconos = async (req, res) => {
         }).toString().split(/\n/);
 
 
-
         setTimeout(() => {
              // ARRAY QUE CONTENDRA LAS LINEAS DEL INSTAL LAS CUALES QUEREMOS EDITAR, ES DECIR, 
             // SOLAMENTE QUEREMOS EDITAR LA LINEA DONDE SE ENCUENTRA EL ICONO DE CADA DISPOSITIVO 
@@ -273,9 +258,6 @@ controller.recortarIconos = async (req, res) => {
             // NUEVO ICONO EN EL 'Instal.dat':  1000 + dispositivosConIconoCambiado.
             let contadorDispositivos = 0;
 
-            console.log('EDITAR LINEA (LISTA)')
-            console.log(editarLinea)
-
             for(let i=0; i<datosInstal.length; i++){
 
                 // COMPRUEBO SI ESTOY EN ALGUNA DE LAS LINEAS QUE QUIERO EDITAR, ES DECIR, 
@@ -287,6 +269,8 @@ controller.recortarIconos = async (req, res) => {
                     
                     // console.log(nuevoInstal[i]);
                     contadorDispositivos++;
+                }else if(i === (datosInstal.length - 1)){
+                    nuevoInstal += datosInstal[i];
                 }
                 // CUANDO NO ES UNA LINEA QUE QUIERO EDITAR PILLO LOS DATOS DEL RAW 'Instal.dat'.
                 else{
@@ -295,17 +279,16 @@ controller.recortarIconos = async (req, res) => {
                 }
             }
 
-            // console.log('NUEVOS DATOS INSTAL');
-            // console.log(nuevoInstal);
-
             // TENGO QUE CONVERTIR EL STRING DONDE TENGO GUARDADOS LOS DATOS DEL NUEVO 'Instal.dat'
             // A UN BUFFER, PORQUE PARA DESPUES HACER EL 'fs.writeFile', LE TENGO QUE PASAR COMO 
             // PARAM: UNA INSTANCIA DE 'buffer', 'typedArray' o 'dataView'
             setTimeout(() => {
-                const buf = Buffer.from(nuevoInstal, 'utf8');
+                const buf = Buffer.from(nuevoInstal, 'utf8', (err) => {
+                    if(err) console.error(err);
+                });
 
                 fs.writeFile(pathInstal, buf, (err) => {
-                    if(err) throw err;
+                    if(err) console.error(err);
                 });
             }, 200);
         }, 200);
@@ -314,7 +297,27 @@ controller.recortarIconos = async (req, res) => {
         console.log('La peticion POST no contiene datos');
     }
 
-    res.render('index');
+    /*****************************************************************************************
+                        LISTA DE ICONOS FUSIONADOS 
+    /*****************************************************************************************/
+    // RUTA Y NOMBRE DONDE VOY A CREAR EL JSON
+    const pathFusionadosJSON = path.join(__dirname, '../public/datos/fusionado.json');
+    // RUTA DEL DIRECTORIO DONDE ESTAN LAS FUSIONES
+    const pathFusiones = path.join(__dirname, '../datos/img/fusiones/');
+
+    // OBTENGO EL NUMERO DE FUSIONES QUE TENGO DEL DIRECTORIO
+    const numeroFusiones = fs.readdirSync(pathFusiones, (err) => { if(err) throw err }).length;
+
+    // CREO UN OBJETO PARA GUARDAR EL DATO
+    const objetoFusion = {
+        numero: numeroFusiones
+    }
+
+    // PASO EL OBJETO A JSON
+    let jsonFusiones_obj = JSON.stringify(objetoFusion);
+    fs.writeFileSync(pathFusionadosJSON, jsonFusiones_obj);
+
+    res.redirect('/');
 }
 
 controller.get = (req, res) => {

@@ -161,6 +161,9 @@ setTimeout(() => {
             .then(componentes => {
                 const fragmento = document.createDocumentFragment();
 
+                // CONTADOR DE LOS DISPOSITIVOS QUE HAN SIDO MODIFICADOS, LOS CUALES YA HE PINTADO.
+                let dispositivosEditadosPintados = 0;
+
                 // RECORRO TODOS LOS DISPOSTIVOS
                 for (let i=0; i<componentes.length; i++) {
                     // let posicion = parseInt(componentes[i].icono);
@@ -266,24 +269,8 @@ setTimeout(() => {
                             nuevoIconoApagado.appendChild(canvasNuevoOFF);
                             nuevoIconoApagado.style.opacity = '0.5';
                         }else if(posicion >= 1000){
-                            console.log(posicion);
-
-                            let posicionEncendido;
-                            let posicionApagado;
-                            
-                            // TENGO QUE COMPROBAR EL CASO DE CUANDO ES EL PRIMER ICONO CAMBIADO. YA QUE SE COMPORTA DE 
-                            // FORMA DIFERENTE A LOS CASOS NORMALES.
-                            if(posicion === 1000){
-                                posicionEncendido = posicion % 1000;
-                                posicionApagado = posicionEncendido + 1;
-                            }else {
-                                posicionEncendido = posicion % 1000 + 1;
-                                posicionApagado = posicionEncendido + 1;
-                            }
-                            
-
-                            console.log(posicionEncendido);
-                            console.log(posicionApagado);
+                            let posicionEncendido = posicion % 1000 + dispositivosEditadosPintados;
+                            let posicionApagado = posicionEncendido + 1;
 
                             let canvasON = iconosCambiados[posicionEncendido].cloneNode(true);
                             canvasON.getContext('2d').drawImage(iconosCambiados[posicionEncendido], 0, 0);
@@ -305,6 +292,9 @@ setTimeout(() => {
 
                             nuevoIconoApagado.appendChild(canvasNuevoOFF);
                             nuevoIconoApagado.style.opacity = '0.5';
+
+                            // AUMENTO EL CONTADOR DE LOS DISPOSITIVOS QUE HAN SIDO EDITADOS.
+                            dispositivosEditadosPintados++;
                         }
 
                         /**********     EVENTOS     **********/
