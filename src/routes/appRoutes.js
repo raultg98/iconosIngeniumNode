@@ -7,7 +7,6 @@ const exec = require('child_process').exec;
 const Jimp = require('jimp');
 const sizeOf = require('image-size');
 const mergeImg = require('merge-img');
-const { type } = require('os');
 
 const router = Router();
 
