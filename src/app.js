@@ -30,8 +30,7 @@ const app = express();
 
 /***************    SETTINGS    ***************/
 app.set('appName', 'Iconos Ingenium');
-app.set('port', '5000');
-// app.set('pathSubida', '/public/img/upload');
+app.set('port', process.env.PORT || 5000);
 
 // MOTOR DE PLANTILLAS.
 app.set('view engine', 'ejs');

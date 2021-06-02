@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const sizeOf = require('image-size');
-const { ENGINE_METHOD_DIGESTS } = require('constants');
 
 // RUTA DONDE TENGO ALMACENADAS MIS LISTAS SUBIDAS (CLIENTE).
 let pathLista = path.join(__dirname, '../public/img/listas/');
