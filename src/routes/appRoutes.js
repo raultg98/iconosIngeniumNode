@@ -7,6 +7,7 @@ const exec = require('child_process').exec;
 const Jimp = require('jimp');
 const sizeOf = require('image-size');
 const mergeImg = require('merge-img');
+const { type } = require('os');
 
 const router = Router();
 
@@ -103,86 +104,6 @@ let upload = multer({
 
 
 /**
- * CREACION DE ALGO MUY SIMILAR A UN CONTROLADOR, PARA ASI TENER EL CODIGO MAS ENTENDIBLE.
- * ESTA FUNCION ES FLECHA ES LLAMADA DESDE LA PETICION 'router.post('/')'
- * 
- * @param { Object } req, Datos recibidos desde el cliente al hacer la peticion
- * @param { Object } res, Datos enviados desde el servidor al hacer dicha peticion
- */
-const recortarIconos1 = async (req, res) => {
-    /*
-        1. OBTENGO EL ARRAY CON TODOS LOS DATOS DE LOS NUEVOS ICONOS.
-        2. RECORTO TODOS LOS ICONOS. CUANDO LOS RECORTE TENGO QUE 
-           COMPROBAR SI YA HE RECORTADO ESE ICONO ANTES
-        3. CREO UNA LISTA DE ICONOS CON TODOS ESOS RECORTES.
-        4. ELIMINO ESOS RECORTES. ???
-    */
-    // ARRAY QUE CONTIENE EL NOMBRE DE LA LISTA Y LA POSICION DEL ICONO EN DICHA LISTA.
-    // ESTOS DATOS SON OBTENIDOS DEL DIV 'nuevoIcono' AL HACER CLICK EN EL BOTON 
-    // 'Guardar Cambios'. (nombreLista-posicionIcono)
-    const iconosInput = req.body.input;
-    console.log(iconosInput);
-    
-    // UBICACION DONDE SE VAN A GUARDAR LOS RECORTES DE LAS LISTAS DE ICONOS
-    const pathRecortes = path.join(__dirname, '../datos/img/recortes/');
-    // UBICACION DONDE ESTAN LAS LISTAS DE LOS ICONOS.
-    const pathListas = path.join(__dirname, '../public/img/listas/');
-
-    // RECORRO LA LISTA DE TODOS LOS ICONOS QUE HE RECIBIDO DESDE EL CLIENTE.
-    for(let i=0; i<iconosInput.length; i++){
-
-        // SEPARO LA LISTA DE ICONO A LA QUE PERTENECE Y LA POSICION DE ESA LISTA.
-        const listaPosIcono = iconosInput[i].split('-');
-
-        // OBETENGO EL NOMBRE DE LA LISTA DE ICONOS CON LA EXTENSION QUE ESTA TIENE
-        const listaIcono = listaPosIcono[0] +'.png';
-
-        // OBTENGO LA POSICION QUE TIENE EL ICONO EN LA LISTA DE ICONOS
-        const posicionIcono = parseInt(listaPosIcono[1]);
-
-        // OBTENGO LA UBICACION Y NOMBRE QUE VA A TENER EL RECORTE
-        // path\'nombreLista - posicionIconoEnLaListaDeIconos' .png
-        // C:\Users\Ingenium\Desktop\Iconos\src\datos\img\recortes\default-0.png
-        const pathConNombreRecorte = pathRecortes + iconosInput[i] + '.png';
-
-        // OBTENGO EL NOMBRE Y LA EXTENSION DEL RECORTE. (default-0.png)
-        const nombreRecorte = iconosInput[i] + '.png';
-
-        // LISTO TODOS LOS ICONOS RECORTADOS QUE TENGO, PARA ASI DESPUES NO RECORTAT UN
-        // ICONO MAS DE UNA VEZ.
-        const recortes = fs.readdirSync(pathRecortes);
-
-        // HAGO LA COMPROBACION DE QUE SI EL ICONO YA LO HE RECORTADO CON ANTERIORIDAD
-        if(!recortes.includes(nombreRecorte)){
-            // OBTENGO LA LISTA DE ICONOS DEL ICONO QUE QUIERO RECORTAR.
-            const iconoRecortado = await Jimp.read(pathListas + listaIcono);
-
-            // TENGO QUE SABER EL TAMAÑO QUE TIENE LA LISTA, PARA SABER SI EL
-            // ICONO ES DE LA PRIMERA O DE LA SEGUNDA COLUMNA
-            const numIconosLista = (sizeOf(pathListas + listaIcono).height/100);
-
-            // console.log('Posicion: '+ i + ', '+ recortes.includes(aux) +', ICONO: ' +iconosInput[i]);
-        
-            // PRIMERA COLUMNA
-            if(posicionIcono < numIconosLista){
-                // RECORTO EL ICONO: .crop(x, y, ancho, alto).
-                // x === 0 ====> Primera Columna
-                // x === 100 ==> Segunda Columna
-                iconoRecortado.crop(0, (posicionIcono*100), 100, 100);
-            }
-            // SEGUNDA COLUMNA
-            else{
-                iconoRecortado.crop(100, ((posicionIcono-100)*100), 100, 100);
-            }
-    
-            iconoRecortado.write(pathConNombreRecorte);
-        }
-    }
-
-    res.render('index'); 
-}
-
-/**
  * FUNCION MUY PARECIDA A UN CONTROLADOR DE 'MVC', PERO SIN IMPLEMENTAR UN ARCHIVO ESPECIFICO
  * PARA EL CONTROLADOR. ESTA FUNCION OBTIENE LOS DATOS DE UN FORMULARIO QUE CREAMOS DESDE EL 
  * CLIENTE AL DARLE AL BOTON DE 'Guardar Cambios', LEEMOS LOS VALORES DE DOS INPUTS QUE 
@@ -196,16 +117,20 @@ const recortarIconos1 = async (req, res) => {
  * @param { Object } res, Datos enviados desde el servidor al cliente.
  */
 const recortarIconos = async (req, res) => {
-    console.log(req)
     /**
      *  1. COMPROBAR QUE HE RECIBIDO INFORMACION.
      *  2. COMPROBAR SI LOS ICONOS QUE NOS HAN PASADO YA LOS TENGO RECORTADOS
      *  3. JUNTAR LOS DOS ICONOS DE UN DISPOSITIVO EN UNA IMAGEN EN HORIZONTAL.
      *  4. JUNTAR TODOS LAS IMAGENES DE LOS DISPOSITIVOS EN VERTICAL
      */
+    // EN CASO DE 'req.body.input' SEA DE TIPO 'undefined' 'iconosInput' SERA UNA CADENA VACIA.
     const iconosInput = req.body.input || '';
 
-    // COMPRUEBO QUE LA PETICION POST QUE RECIBO NO CONTIENE DATOS, PORQ
+    console.log('iconosInput: ');
+    console.log(iconosInput);
+
+    // COMPRUEBO QUE LA PETICION POST QUE RECIBO CONTIENE DATOS. SI CONTIENE DATOS
+    // LOS MANEJO TODOS DESDE DENTRO DE ESTE IF.
     if(iconosInput !== ''){
         // RUTA DONDE TENGO GUARDADOS LOS ICONOS RECORTADOS.
         const pathIconosRecortados = path.join(__dirname, '../datos/img/recortes/');
@@ -215,10 +140,8 @@ const recortarIconos = async (req, res) => {
         const pathFusiones = path.join(__dirname, '../datos/img/fusiones/');
         // RUTA DONDE SE VAN A GUARDAR LA IMAGEN QUE ES LA FUSION DE TODOS LOS DISPOSITIVOS.
         const pathFusionMaster = path.join(__dirname, '../public/img/fusion/fusionMaster.png');
-
-        // const prueba = path.join(__dirname, '../public/img/fusionMaster.png');
         
-        // TENGO QUE RECORTAR LOS ICONOS
+        // TENGO QUE RECORTAR LOS ICONOS QUE HE RECIBO DESDE EL 'iconosInpit'
         for(let i=0; i<iconosInput.length; i++){
             // DATOS DEL ICONO
             const icono = iconosInput[i].split('-');
@@ -230,7 +153,10 @@ const recortarIconos = async (req, res) => {
             const nombreRecorte = nombreListaIcono +'-'+ posicionIcono + '.png';
 
             // LISTO TODOS LOS ICONOS QUE YA TENGO RECORTADOS
-            const recortes = fs.readdirSync(pathIconosRecortados);
+            const recortes = fs.readdirSync(pathIconosRecortados, (err, data) => {
+                if(err) console.error(err);
+                console.log('LEIDO')
+            });
 
             // COMPRUEBO SI EL ICONO QUE TENGO AHORA MISMO YA LO TENGO RECORTADO O SI ES UN ICONO
             // CUSTOM QUE EN ESE CASO, YA TENGO LOS ICONOS GUARDADOS.
@@ -240,6 +166,7 @@ const recortarIconos = async (req, res) => {
 
                 // COMPRUEBO SI LA LISTA DE ICONOS ES LA DEFAULT, PORQUE EN CASO DE SER ASI TIENE UNA
                 // RUTA DIFERENTE AL RESTO DE LISTAS.
+                
                 if(nombreListaIcono === 'default'){
                     const pathListaDefault = path.join(__dirname, '../public/img/default.png');
 
@@ -249,10 +176,10 @@ const recortarIconos = async (req, res) => {
                     numeroIconosLista = (sizeOf(pathListaDefault).height/100);
                 }else{
                     iconoRecortado = await Jimp.read(pathListas + nombreListaIcono +'.png');
+   
                     numeroIconosLista = (sizeOf(pathListas + nombreListaIcono +'.png').height/100);
-                    // console.log('iconos: '+ numeroIconosLista)
                 }
-                
+          
                 // RECORTO EL ICONO Y LO GUARDO EN '../datos/img/recortes/
                 if(posicionIcono < numeroIconosLista){
                     iconoRecortado.crop(0, (posicionIcono*100), 100, 100);
@@ -260,7 +187,9 @@ const recortarIconos = async (req, res) => {
                     iconoRecortado.crop(100, ((posicionIcono-100)*100), 100, 100);
                 }
 
-                iconoRecortado.write(pathIconosRecortados + nombreRecorte);
+                iconoRecortado.write(pathIconosRecortados + nombreRecorte, (err) => {
+                    if(err) throw err;
+                });
             }
         }
 
@@ -274,7 +203,7 @@ const recortarIconos = async (req, res) => {
             const nombreRecorteON = iconoON[1] +'-'+ iconoON[2] +'.png';
 
             // DATOS DEL ICONO EN ESTADO OFF
-            const iconoOFF = iconosInput[(i+1)].split('-');
+            const iconoOFF = iconosInput[i+1].split('-');
             const dispositivoOFF = iconoOFF[0];
             const nombreListaOFF = iconoOFF[1];
             const nombreRecorteOFF = iconoOFF[1] +'-'+ iconoOFF[2] +'.png';
@@ -286,7 +215,14 @@ const recortarIconos = async (req, res) => {
                 const pathNombreFusion = pathFusiones + 'dispositivo-'+ dispositivoON +'.png';
                 const pathUpload = path.join(__dirname, '../datos/img/upload/');
 
-                const imgSubidas = fs.readdirSync(pathUpload);
+                // const imgSubidas = fs.readdirSync(pathUpload);
+
+                const imgSubidas = fs.readdirSync(pathUpload, (err) => {
+                    if(err) {
+                        console.error(err);
+                        console.log('Error: '+ pathUpload);
+                    }
+                });
 
                 let imgON, imgOFF;
 
@@ -320,7 +256,7 @@ const recortarIconos = async (req, res) => {
 
         
         setTimeout(() => {
-            const listaFusiones = fs.readdirSync(pathFusiones, (err, files) => {
+            const listaFusiones = fs.readdirSync(pathFusiones, (err) => {
                 if(err) console.error(err);
                 console.log('Se han leido correctamente las fusiones');
             });
@@ -382,9 +318,6 @@ const recortarIconos = async (req, res) => {
                     fusionesPath.push(pathFusiones + fus);
                 });
 
-                // console.log('FusionesPath: ')
-                // console.log(fusionesPath);
-
                 // FUSIONO LAS IMAGENES DE TODOS LOS DISPOSITIVOS EN VERTICAL.
                 mergeImg(fusionesPath, { direction: true})
                 .then((img) => {
@@ -397,34 +330,86 @@ const recortarIconos = async (req, res) => {
 
         // AHORA TENGO QUE MODIFICAR EL 'Instal.dat' DE CADA UNO DE LOS DISPOSITIVOS.
         const pathInstal = path.join(__dirname, '../datos/Instal.dat');
-        const datosInstal = fs.readFileSync(pathInstal).toString().split(/\n/);
+
+        const datosInstal = fs.readFileSync(pathInstal, (err) => {
+            if(err) console.error(err);
+        }).toString().split(/\n/);
+
+
+
+        setTimeout(() => {
+            // console.log('DATOS INSTAL');
+            // console.log(datosInstal);
+
+            // OBTENGO TODOS LOS DISPOSITIVOS QUE HAN EDITADO.
+            const dispositivosEditados = fs.readdirSync(pathFusiones, (err) => {
+                if(err) console.error(err);
+            });
+
+             // ARRAY QUE CONTENDRA LAS LINEAS DEL INSTAL LAS CUALES QUEREMOS EDITAR, ES DECIR, 
+            // SOLAMENTE QUEREMOS EDITAR LA LINEA DONDE SE ENCUENTRA EL ICONO DE CADA DISPOSITIVO 
+            // AL CUAL SE LE HA CAMBIADO UNO DE LOS DOS ICONOS.
+            const editarLinea = [];
+
+            console.log('Length: '+ dispositivosEditados.length);
+
+            for(let i=0; i<dispositivosEditados.length; i++){
+                // OBTENGO EL 'numDispositivo' EL CUAL SE HA EDITADO.
+                const dispositivo = parseInt(dispositivosEditados[i].split('-')[1].split('.')[0]);
         
-        const dispositivosEditados = fs.readdirSync(pathFusiones);
-        console.log(dispositivosEditados)
+                // OBTENGO LA LINEA A EDITAR DE CADA DISPOSITIVO EN EL 'Instal.dat' (LA DEL ICONO)
+                let lineaInstal = (dispositivo + 1)*8 - 1;
+                
+                editarLinea.push(lineaInstal);
+            }
 
-        // setTimeout(() => {
-        //     for(let i=0; i<dispositivosEditados.length; i++){
-        //         // DATOS DEL ICONO
-        //         const dispositivo = parseInt(dispositivosEditados[i].split('-')[1].split('.')[0]);
-        //         console.log('dispositivo: '+ dispositivo)
-        
-        //         const iconoInstal = (dispositivo + 1)*8 - 1; 
+            // VARIABLE DONDE VOY A GUARDAR LOS DATOS QUE VA A TENER EL 'Instal.dat'
+            let nuevoInstal = '';
+            // LLEVO UN CONTADOR DE LOS DISPOSITIVOS A LOS CUALES LES HE CAMBIADO EL ICONO
+            // NUEVO ICONO EN EL 'Instal.dat':  1000 + dispositivosConIconoCambiado.
+            let contadorDispositivos = 0;
 
-        //         datosInstal[iconoInstal] = 1000+i;
-        
-        //         // fs.appendFileSync(pathInstal, 'data to append');
-        //     }
+            console.log('EDITAR LINEA (LISTA)')
+            console.log(editarLinea)
 
-        //     // fs.appendFileSync('message.txt', 'data to append');
+            for(let i=0; i<datosInstal.length; i++){
 
-        //     // console.log(datosInstal);
+                // COMPRUEBO SI ESTOY EN ALGUNA DE LAS LINEAS QUE QUIERO EDITAR, ES DECIR, 
+                // LA LINEA CORRESPONDIENTE AL ICONO DE ALGUN DISPOSITIVO AL CUAL SE LE 
+                // CAMBIADO ALGUNO DE LOS DOS ICONOS
+                if(editarLinea.includes(i)){
+                    nuevoInstal += (1000 + contadorDispositivos).toString();
+                    nuevoInstal += '\n';
+                    
+                    // console.log(nuevoInstal[i]);
+                    contadorDispositivos++;
+                }
+                // CUANDO NO ES UNA LINEA QUE QUIERO EDITAR PILLO LOS DATOS DEL RAW 'Instal.dat'.
+                else{
+                    nuevoInstal += datosInstal[i];
+                    nuevoInstal += '\n';
+                }
+            }
 
-        //     // fs.writeFileSync(pathInstal, datosInstal.toString())
-        // }, 20);
+            // console.log('NUEVOS DATOS INSTAL');
+            // console.log(nuevoInstal);
+
+            // TENGO QUE CONVERTIR EL STRING DONDE TENGO GUARDADOS LOS DATOS DEL NUEVO 'Instal.dat'
+            // A UN BUFFER, PORQUE PARA DESPUES HACER EL 'fs.writeFile', LE TENGO QUE PASAR COMO 
+            // PARAM: UNA INSTANCIA DE 'buffer', 'typedArray' o 'dataView'
+            setTimeout(() => {
+                const buf = Buffer.from(nuevoInstal, 'utf8');
+
+                fs.writeFile(pathInstal, buf, (err) => {
+                    if(err) throw err;
+                });
+            }, 200);
+        }, 150);
+       
     } else {
         console.log('La peticion POST no contiene datos');
     }
-    
+
     res.render('index');
 }
 
@@ -480,6 +465,12 @@ router.post('/add', upload, (req, res) => {
         if(err) throw err;
     
         console.log('obtenerIconosCustom EJECUTADO')
+    });
+
+    exec('node \serverScripts/obtenerDatosInstal.js', (err, stdout) => {
+        if(err) throw err;
+
+        console.log('EJECUTADO ==> DatosInstal')
     });
 
     res.render('add');

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const sizeOf = require('image-size');
+const { ENGINE_METHOD_DIGESTS } = require('constants');
 
 // RUTA DONDE TENGO ALMACENADAS MIS LISTAS SUBIDAS (CLIENTE).
 let pathLista = path.join(__dirname, '../public/img/listas/');
@@ -65,3 +66,23 @@ function escribirJSON(){
     let json_obj = JSON.stringify(listasPathClient);
     fs.writeFileSync(pathJSON, json_obj);
 }escribirJSON();
+
+/*****************************************************************************************
+                        LISTA DE ICONOS FUSIONADOS 
+/*****************************************************************************************/
+// RUTA Y NOMBRE DONDE VOY A CREAR EL JSON
+const pathFusionadosJSON = path.join(__dirname, '../public/datos/fusionado.json');
+// RUTA DEL DIRECTORIO DONDE ESTAN LAS FUSIONES
+const pathFusiones = path.join(__dirname, '../datos/img/fusiones/');
+
+// OBTENGO EL NUMERO DE FUSIONES QUE TENGO DEL DIRECTORIO
+const numeroFusiones = fs.readdirSync(pathFusiones, (err) => { if(err) throw err }).length;
+
+// CREO UN OBJETO PARA GUARDAR EL DATO
+const objetoFusion = {
+    numero: numeroFusiones
+}
+
+// PASO EL OBJETO A JSON
+let jsonFusiones_obj = JSON.stringify(objetoFusion);
+fs.writeFileSync(pathFusionadosJSON, jsonFusiones_obj);
