@@ -19,7 +19,7 @@ app.set('views', __dirname + '/views');
 /***************    MIDDLEWARE    ***************/
 // Morgan me dice por consola la peticion que estoy haciendo, la ruta
 // el status y el tiempo que tardo la peticion.
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 

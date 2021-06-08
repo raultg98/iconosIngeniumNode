@@ -1,13 +1,13 @@
 const { Router } = require('express');
-const controllerRaiz = require('../controller/appControllerRaiz');
-const controllerAdd = require('../controller/appControllerAdd');
+const controllerRaiz = require('../controller/controllerRaiz');
+const controllerAdd = require('../controller/controllerAdd');
 
 const router = Router();
 
 /********    RUTA /    ********/
 router.get('/', controllerRaiz.get);
 
-router.post('/', controllerRaiz.recortarIconos);
+router.post('/', controllerRaiz.post);
 
 
 /********    RUTA /ADD    ********/

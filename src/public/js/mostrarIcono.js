@@ -2,12 +2,12 @@ const divContenedor = document.getElementById('divPadre');
 // divContenedor.setAttribute('class', 'd-flex justify-content-center')
 
 setTimeout(() => {
-    const divPrueba = document.querySelector('.pruebas');
-    // console.log(divPrueba)
-    const imagenPrueba = new Image();
-    imagenPrueba.src = '/img/fusion/fusionMaster.png';
-    // console.log(imagenPrueba);
-    divPrueba.appendChild(imagenPrueba);
+    // const divPrueba = document.querySelector('.pruebas');
+    // // console.log(divPrueba)
+    // const imagenPrueba = new Image();
+    // imagenPrueba.src = '/img/fusion/fusionMaster.png';
+    // // console.log(imagenPrueba);
+    // divPrueba.appendChild(imagenPrueba);
 
     // ARRAY QUE CONTENDRA LOS ICONOS DE TODAS LAS LISTAS DE ICONOS.
     let iconosRecortados = [];
@@ -39,6 +39,8 @@ setTimeout(() => {
     fetch('../datos/fusionado.json')
     .then(res => res.json())
     .then(numero => {
+        console.log('NUMERO: '+ numero.numero);
+
         // TENGO QUE RECORTAR LOS ICONOS.
         for(let i=0; i<numero.numero; i++){
             const canvasON =  document.createElement('canvas');
@@ -166,6 +168,9 @@ setTimeout(() => {
 
                 // RECORRO TODOS LOS DISPOSTIVOS
                 for (let i=0; i<componentes.length; i++) {
+
+                    console.log('DISPOSITIVO: '+ i +', POSICION: '+componentes[i].icono);
+
                     // let posicion = parseInt(componentes[i].icono);
                     if(!isNaN(parseInt(componentes[i].icono))){
                         /**********     CREACION ELEMENTOS     **********/
