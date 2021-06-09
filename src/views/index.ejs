@@ -1,5 +1,11 @@
 <%- include('template/cabecera.ejs', {titulo: 'ICONOS INGENIUM'}) %>
 
+<div id="contenedor-carga">
+    <div id="carga">
+
+    </div>
+</div>
+
 <form action="/" method="POST" class="row mx-3 my-4" id="formulario">
 
     <button type="submit" id="botonEnviar" class="col-12 btn colorFondo text-white">
@@ -8,16 +14,9 @@
 
 </form>
 
-<!-- <div class="pruebas"> -->
-    <!-- <img src="/img/fusion/fusionMaster.png" alt="no se ve"> -->
-<!-- </div> -->
-
-<!-- <div class="pruebas">
-    
-</div> -->
-
 <div id="divPadre"></div>
 
+<script src="/js/cargaWeb.js"></script>
 <script src="/js/mostrarIcono.js"></script>
 <script src="/js/enviarDatos.js"></script>
 
