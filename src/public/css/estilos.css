@@ -1,10 +1,6 @@
 body{
     min-width: 400px;
-    background-color: aqua;
-}
-
-body{
-    min-width: 380px;
+    background-color: white;
 }
 
 h5{
@@ -20,4 +16,25 @@ h5{
 
 #acordeonBody canvas{
     margin-bottom: 2vh;
+}
+
+.colorBorde{
+    border: 3px solid #202e54;
+}
+
+.colorTexto{
+    color: #202e54;
+}
+
+.colorFondo {
+    background-color: #202e54;
+}
+
+.colorInput {
+    background-color: #202e54;
+}
+
+.uploadFiles:hover{
+    background-color: #202e54;
+    color: white;
 }

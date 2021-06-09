@@ -1,14 +1,6 @@
 const divContenedor = document.getElementById('divPadre');
-// divContenedor.setAttribute('class', 'd-flex justify-content-center')
 
 setTimeout(() => {
-    // const divPrueba = document.querySelector('.pruebas');
-    // // console.log(divPrueba)
-    // const imagenPrueba = new Image();
-    // imagenPrueba.src = '/img/fusion/fusionMaster.png';
-    // // console.log(imagenPrueba);
-    // divPrueba.appendChild(imagenPrueba);
-
     // ARRAY QUE CONTENDRA LOS ICONOS DE TODAS LAS LISTAS DE ICONOS.
     let iconosRecortados = [];
 
@@ -19,8 +11,6 @@ setTimeout(() => {
         titulo: 'default',
         numeroIconos: 200
     }];
-
-    // let listasDeIconos = [];
 
     // OBTENGO LOS DATOS PASADOS DESDE EL SERVIDOR, SOBRE LAS LISTAS DE ICONOS
     fetch('../datos/listasSubidas.json')
@@ -71,27 +61,17 @@ setTimeout(() => {
                     ancho_alto * zoom, 0, 0, ancho_alto, ancho_alto);
             }
 
-            iconoON.src = '/img/fusion/fusionMaster.png';
-            iconoOFF.src = '/img/fusion/fusionMaster.png';
+            iconoON.src = '/img/fusion/iconos_importados.png';
+            iconoOFF.src = '/img/fusion/iconos_importados.png';
 
-            canvasON.setAttribute('id', `fusionMaster-${i}-ON`);
-            canvasOFF.setAttribute('id', `fusionMaster-${i}-OFF`);
+            canvasON.setAttribute('id', `iconos_importados-${i}-ON`);
+            canvasOFF.setAttribute('id', `iconos_importados-${i}-OFF`);
 
             iconosCambiados.push(canvasON);
             iconosCambiados.push(canvasOFF);
         }
     })
 
-    // setTimeout(() => {
-    //     console.log('ICONOS CAMBIADOS');
-    //     console.log(iconosCambiados.length)
-    //     const nuevoDiv = document.createElement('div');
-    //     for(let i=0; i<iconosCambiados.length; i++){
-    //         nuevoDiv.appendChild(iconosCambiados[i]);
-    //     }
-    //     divPrueba.appendChild(nuevoDiv);
-    // }, 100)
-  
     // FUNCION QUE ME RECORTA TODOS LOS ICONOS DE LA LISTA ICONOS.
     function recortarIconosLista(){
         // RECORRO EL ARRAY CON TODAS LAS LISTA DE ICONOS
@@ -151,8 +131,6 @@ setTimeout(() => {
         }
     }
 
-    // console.log(iconosRecortados);
-
     // TENGO QUE LEER EL JSON CON TODOS LOS DISPOSITIVOS PARA DESPUES MOSTRAR ESTOS. 
     // LE METO UN 'setTimeOut', PARA QUE LE DE TIEMPO A RECORTAR Y ALMACENAR LOS ICONOS.
     setTimeout(function leerJSON() {
@@ -193,20 +171,20 @@ setTimeout(() => {
                         const acordeonOFF = document.createElement('div');
 
                         /**********     ESTILOS     **********/
-                        dispositivo.setAttribute('class', 'row mx-3 mt-3 mb-4 border border-2 border-primary rounded dispositivo');
+                        dispositivo.setAttribute('class', 'row mx-3 mt-3 mb-4 colorBorde dispositivo');
 
-                        nombreDipositivo.setAttribute('class', 'text-center text-primary');
+                        nombreDipositivo.setAttribute('class', 'text-center colorTexto');
 
-                        encabezadoEncendido.setAttribute('class', 'my-1 text-primary');
-                        encabezadoApagado.setAttribute('class', 'my-1 text-primary');
+                        encabezadoEncendido.setAttribute('class', 'my-1 colorTexto');
+                        encabezadoApagado.setAttribute('class', 'my-1 colorTexto');
 
                         divEncendido.setAttribute('class', 'col-md-6 col-sm-12');
                         divApagado.setAttribute('class', 'col-md-6 col-sm-12');
 
-                        encendido.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 my-3 border border-2 border-primary rounded');
-                        apagado.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 my-3 border border-2 border-primary rounded');
-                        flechaON.setAttribute('class', 'fas fa-arrow-right text-primary');
-                        flechaOFF.setAttribute('class', 'fas fa-arrow-right text-primary');
+                        encendido.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 my-3 colorBorde');
+                        apagado.setAttribute('class', 'd-flex justify-content-between align-items-center p-3 my-3 colorBorde');
+                        flechaON.setAttribute('class', 'fas fa-arrow-right colorTexto');
+                        flechaOFF.setAttribute('class', 'fas fa-arrow-right colorTexto');
 
                         nuevoIconoEncendido.setAttribute('class', 'nuevoIcono');
                         nuevoIconoEncendido.setAttribute('id', `nuevoIcono-ON-${i}`);
@@ -402,14 +380,14 @@ setTimeout(() => {
             acordeonHeader.setAttribute('class', 'accordion-header my-1');
             acordeonHeader.setAttribute('id', `heading${dispositivo}${i}${estado}`);
 
-            acordeonBoton.setAttribute('class', 'accordion-button bg-primary text-white collapsed');
+            acordeonBoton.setAttribute('class', 'col-12 btn colorFondo text-white collapsed mx-auto');
             acordeonBoton.setAttribute('type', 'button');
             acordeonBoton.setAttribute('data-bs-toggle', 'collapse');
             acordeonBoton.setAttribute('data-bs-target', `#collapse${dispositivo}${i}${estado}`);
             acordeonBoton.setAttribute('aria-expanded', 'false');
             acordeonBoton.setAttribute('aria-controls', `collapse${dispositivo}${i}${estado}`);
 
-            acordeonCollapse.setAttribute('class', 'accordion-collapse collapse bg-drak text-warning');
+            acordeonCollapse.setAttribute('class', 'accordion-collapse collapse colorFondo text-white');
             acordeonCollapse.setAttribute('id', `collapse${dispositivo}${i}${estado}`);
             acordeonCollapse.setAttribute('aria-labelledby', `heading${dispositivo}${i}${estado}`);
             acordeonCollapse.setAttribute('data-bs-parent', '#acordeonPadre');

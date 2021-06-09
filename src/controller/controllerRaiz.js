@@ -11,12 +11,12 @@ const pathInstal = path.join(__dirname, '../datos/Instal.dat');
 
 const pathIconosRecortados = path.join(__dirname, '../datos/img/recortes/');
 const pathFusiones = path.join(__dirname, '../datos/img/fusiones/');
-const pathRecortesFusionMaster = path.join(__dirname, '../datos/img/recortesFusionMaster/');
+const pathRecortesFusionMaster = path.join(__dirname, '../datos/img/iconosImportados/');
 const pathUpload = path.join(__dirname, '../datos/img/upload/');
 
 const pathListas = path.join(__dirname, '../public/img/listas/');
 const pathListaDefault = path.join(__dirname, '../public/img/default.png');
-const pathFusionMaster = path.join(__dirname, '../public/img/fusion/fusionMaster.png');
+const pathFusionMaster = path.join(__dirname, '../public/img/fusion/iconos_importados.png');
 
 /**********     FUNCIONES     **********/
 controller.get = (req, res) => {
@@ -88,7 +88,7 @@ function recortarIconos(iconosInput){
         const nombreRecorte = nombreListaIcono +'-'+ posicionIcono +'.png';
 
         // TENGO QUE COMPROBAR SI EL RECORTE YA LO TENGO TENGO
-        if(nombreListaIcono !== 'custom' && nombreListaIcono !== 'fusionMaster'){
+        if(nombreListaIcono !== 'custom' && nombreListaIcono !== 'iconos_importados'){
             if(!comprobarRecorte(nombreRecorte)){
 
                 let rutaLista;
@@ -186,8 +186,8 @@ function fusionHorizontal(iconosInput){
             if(nombreListaON === 'custom'){
                 const nombreIconoUpload = listaUpload[posicionIconoON];
                 imgON = pathUpload + nombreIconoUpload;
-            }else if(nombreListaON === 'fusionMaster'){
-                const nombreRecorteFusionMaster = 'fusionMaster-ON-'+ posicionIconoON +'.png';
+            }else if(nombreListaON === 'iconos_importados'){
+                const nombreRecorteFusionMaster = 'iconos_importados-ON-'+ posicionIconoON +'.png';
                 imgON = pathRecortesFusionMaster + nombreRecorteFusionMaster;
             }else {
                 imgON = pathIconosRecortados + nombreRecorteON;
@@ -196,8 +196,8 @@ function fusionHorizontal(iconosInput){
             if(nombreListaOFF === 'custom'){
                 const nombreIconoUpload = listaUpload[posicionIconoOFF];
                 imgOFF = pathUpload + nombreIconoUpload;
-            }else if(nombreListaOFF === 'fusionMaster'){
-                const nombreRecorteFusionMaster = 'fusionMaster-OFF-'+ posicionIconoOFF +'.png';
+            }else if(nombreListaOFF === 'iconos_importados'){
+                const nombreRecorteFusionMaster = 'iconos_importados-OFF-'+ posicionIconoOFF +'.png';
                 imgOFF = pathRecortesFusionMaster + nombreRecorteFusionMaster;
             }else {
                 imgOFF = pathIconosRecortados + nombreRecorteOFF;
@@ -336,7 +336,7 @@ function recortarIconosFusionMaster(){
         Jimp.read(rutaYnombreFusion)
         .then(iconoON => {
             // NOMBRE QUE VA A TENER EL RECORTE DEL ICONO ON
-            const nombreRecorteON = 'fusionMaster-ON-'+ i +'.png';
+            const nombreRecorteON = 'iconos_importados-ON-'+ i +'.png';
             // RUTA Y NOMBRE QUE VA A TENER EL RECORTE DEL ICONO ON.
             const rutaYnombreRecorteON = pathRecortesFusionMaster + nombreRecorteON;
 
@@ -350,7 +350,7 @@ function recortarIconosFusionMaster(){
         Jimp.read(rutaYnombreFusion)
         .then(iconoOFF => {
             // NOMBRE QUE VA A TENER EL RECORTE DEL ICONO OFF.
-            const nombreRecorteOFF = 'fusionMaster-OFF-'+ i +'.png';
+            const nombreRecorteOFF = 'iconos_importados-OFF-'+ i +'.png';
             // RUTA Y NOMBRE QUE VA A TENER EL RECORTE DEL ICONO OFF.
             const rutaYnombreRecorteOFF = pathRecortesFusionMaster + nombreRecorteOFF;
 
