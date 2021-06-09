@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const resizeImg = require('resize-img');
-const exec = require('child_process').exec;
+const script = require('../serverScripts/serverScripts');
 
 /********    SUBIDA DE IMAGENES    ********/
 // FUNCION QUE ME CAMBIA EL TAMAÑO DE LAS FOTOS QUE ESTAN EN EL DIRECTORIO
@@ -102,23 +102,9 @@ controller.addPost = (req, res) => {
     // SUBIDOS DESDE EL CLIENTE.
     cambiarTamnio();
 
-    exec('node \serverScripts/obtenerIconosCustom.js', (err, stdout) => {
-        if(err) throw err;
-    
-        console.log('obtenerIconosCustom EJECUTADO')
-    });
-
-    exec('node \serverScripts/obtenerListasSubidas.js', (err, stdout) => {
-        if(err) throw err;
-    
-        console.log('obtenerIconosCustom EJECUTADO')
-    });
-
-    exec('node \serverScripts/obtenerDatosInstal.js', (err, stdout) => {
-        if(err) throw err;
-
-        console.log('EJECUTADO ==> DatosInstal')
-    });
+    script.obtenerDatosInstal();
+    script.obtenerIconosCustom();
+    script.obtenerListasSubidas();
 
     res.render('add');
 }

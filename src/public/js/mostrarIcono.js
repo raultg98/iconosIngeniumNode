@@ -39,8 +39,6 @@ setTimeout(() => {
     fetch('../datos/fusionado.json')
     .then(res => res.json())
     .then(numero => {
-        console.log('NUMERO: '+ numero.numero);
-
         // TENGO QUE RECORTAR LOS ICONOS.
         for(let i=0; i<numero.numero; i++){
             const canvasON =  document.createElement('canvas');
@@ -169,7 +167,7 @@ setTimeout(() => {
                 // RECORRO TODOS LOS DISPOSTIVOS
                 for (let i=0; i<componentes.length; i++) {
 
-                    console.log('DISPOSITIVO: '+ i +', POSICION: '+componentes[i].icono);
+                    // console.log('DISPOSITIVO: '+ i +', POSICION: '+componentes[i].icono);
 
                     // let posicion = parseInt(componentes[i].icono);
                     if(!isNaN(parseInt(componentes[i].icono))){

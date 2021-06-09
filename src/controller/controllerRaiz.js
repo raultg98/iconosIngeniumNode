@@ -4,9 +4,9 @@ const fs = require('fs');
 const Jimp = require('jimp');
 const sizeOf = require('image-size');
 const mergeImg = require('merge-img');
-const exec = require('child_process').exec;
+const script = require('../serverScripts/serverScripts');
 
-// RUTAS NECESARIAS PARA EL POST
+/**********     RUTAS NECESARIAS PARA EL POST     **********/
 const pathInstal = path.join(__dirname, '../datos/Instal.dat');
 
 const pathIconosRecortados = path.join(__dirname, '../datos/img/recortes/');
@@ -18,26 +18,13 @@ const pathListas = path.join(__dirname, '../public/img/listas/');
 const pathListaDefault = path.join(__dirname, '../public/img/default.png');
 const pathFusionMaster = path.join(__dirname, '../public/img/fusion/fusionMaster.png');
 
+/**********     FUNCIONES     **********/
 controller.get = (req, res) => {
     console.log('Estoy en la ruta: ', req.path);
 
-    exec('node \serverScripts/obtenerListasSubidas.js', (err, stdout) => {
-        if(err) throw err;
-
-        exec('node \serverScripts/obtenerIconosCustom.js', (err1, stdout1) => {
-            if(err1) throw err1;
-        
-            console.log('EJECUTADO ==> IconosCustom')
-        });
-
-        console.log('EJECUTADO ==> ListasSubidas')   
-    });
-
-    exec('node \serverScripts/obtenerDatosInstal.js', (err, stdout) => {
-        if(err) throw err;
-
-        console.log('EJECUTADO ==> DatosInstal')
-    });
+    script.obtenerDatosInstal();
+    script.obtenerIconosCustom();
+    script.obtenerListasSubidas();
 
     res.render('index');
 }
@@ -45,6 +32,7 @@ controller.get = (req, res) => {
 controller.post = (req, res) => {
     const iconosInput = req.body.input || '';
 
+    console.log('ICONO INPUT: ');
     console.log(iconosInput);
 
     // COMPRUEBO SI LA PETICION POST QUE RECIBO CONTIENE DATOS.
@@ -69,13 +57,14 @@ controller.post = (req, res) => {
             escribirJSON();
         }, 2000)
 
+        setTimeout(() => {
+            res.redirect('/');
+        }, 5500);
     }else {
-        console.log('LA PETICION POST NO TIENE DATOS')
-    }
-
-    setTimeout(() => {
+        console.log('LA PETICION POST NO TIENE DATOS');
+        
         res.redirect('/');
-    }, 5500);
+    }
 }
 
 /**
@@ -158,6 +147,8 @@ function comprobarRecorte(nombreRecorte){
 }
 
 /**
+ * FUNCION QUE ME FUSIONA LOS DOS ICONOS QUE VA A TENER MI DISPOSITIVO. ESTA FUSION
+ * SE REALIZA EN HORIZONTAL
  * 
  * @param {*} iconosInput 
  */
@@ -183,6 +174,7 @@ function fusionHorizontal(iconosInput){
             // RUTA Y NOMBRE FUSION
             const pathYnombreFusion = pathFusiones +'dispositivo-'+ dispositivoON +'.png';
 
+            // RUTA Y NOMBRE DONDE ESTA EL ICONO QUE SE DESEA FUSIONAR.
             let imgON, imgOFF;
 
             let listaUpload;
@@ -190,7 +182,7 @@ function fusionHorizontal(iconosInput){
                 listaUpload = fs.readdirSync(pathUpload);
             }
 
-            // TENGO QUE OBTENER LA RUTA DONDE SE ENCUENTRA CADA ICONO
+            // TENGO QUE OBTENER LA RUTA DONDE SE ENCUENTRA LOS DOS ICONOS DE CADA DISPOSITIVO.
             if(nombreListaON === 'custom'){
                 const nombreIconoUpload = listaUpload[posicionIconoON];
                 imgON = pathUpload + nombreIconoUpload;
@@ -211,9 +203,7 @@ function fusionHorizontal(iconosInput){
                 imgOFF = pathIconosRecortados + nombreRecorteOFF;
             }
 
-            // console.log('IMAGEN ON: '+ imgON);
-            // console.log('IMAGEN OFF: '+ imgOFF);
-
+            // REALIZO LA FUSION
             mergeImg([imgON, imgOFF], { direction: false })
             .then(img => {
                 img.write(pathYnombreFusion)
@@ -232,21 +222,24 @@ function fusionHorizontal(iconosInput){
 function fusionVertical(){
     const listaFusiones = fs.readdirSync(pathFusiones);
 
+    // SI SOLAMENTE HE REALIZO UNA FUSION EN HORIZONTAL NO HACE FALTA QUE HAGA LA FUSION EN 
+    // VERTICAL YA QUE PARA HACERLA NECESITO MINIMO DOS FUSIONES HORIZONTALES.
     if(listaFusiones.length === 1){
         const pathYnombreFusionAct = pathFusiones + listaFusiones[0]
 
         fs.copyFile(pathYnombreFusionAct, pathFusionMaster, (err) => {
             if (err) console.error(err);
-
-            // console.log('COPIADO CORRECTO');
         });
     }else {
+        // ARRAY QUE COTIENE EL NOMBRE Y LA RUTA DE CADA FUSION EN VERTICAL.
         const rutaYnombreFusion = [];
 
         for(let i=0; i<listaFusiones.length; i++){
+            // HAGO UN PUSH DE LA RUTA Y EL NOMBRE DE CADA UNA DE LAS FUSIONES
             rutaYnombreFusion.push(pathFusiones + listaFusiones[i]);
         }
 
+        // REALIZO LA FUSION EN VERTICAL
         setTimeout(() => {
             mergeImg(rutaYnombreFusion, { direction: true })
             .then(img => {
@@ -257,36 +250,55 @@ function fusionVertical(){
     }
 }
 
+/**
+ * FUNCION QUE ME ACTULIZA LOS DATOS DEL 'Instal.dat'. EN CONCRETO SOLAMENTE ME ACTULIZA
+ * LA LINEA DE CODIGO DE CADA DISPOSITIVO EDITADO RELACIONADO CON EL ICONO DEL MISMO.
+ */
 function actualizarInstal(){
+    // OBTENGO TODOS LOS DATOS DEL 'Instal.dat'
     const datosInstal = fs.readFileSync(pathInstal).toString().split(/\n/);
+    // OBTENGO TODAS LAS FUSIONES EN HORIZONTAL QUE SE HAN REALIZADO
     const listaFusiones = fs.readdirSync(pathFusiones);
 
+    // ARRAY QUE VA A CONTENER TODAS LAS LINEAS DEL 'Instal.dat' QUE TENGO QUE MODIFICAR.
     const nuevasLineas = [];
 
-    // listaFusiones.forEach(fusion => {
     for(let i=0; i<listaFusiones.length; i++){
 
+        // DISPOSITIVO AL CUAL LE QUIERO EDITAR UNA LINEA.
         const dispositivoEditado = parseInt(listaFusiones[i].split('-')[1].split('-'[0]));
+        // LINEA DEL ICONO DE UN DISPOSITIVO EN CONCRETO.
         const lineaDispositivoIcono = (dispositivoEditado + 1) * 8 - 1;
 
         nuevasLineas.push(lineaDispositivoIcono);
     }
        
+    // STRING QUE VA CONTENER LOS DATOS EDITADOS DEL 'Instal.dat'.
     let nuevosDatosInstal = '';
+    // CONTADOR PARA SABER A CUANTOS DISPOSITIVOS MODIFICADOS LES HE CAMBIADO YA LA LINEA 
+    // DEL ICONO.
     let contadorDispositivosEditados = 0;
 
+    // RECORRO LINEA POR LINEA LOS DATOS DEL 'Instal.dat'.
     for(let i=0; i<datosInstal.length; i++){
+        // COMPRUEBO SI LA LINEA EN LA QUE ESTOY ES UNA DE LAS LINEAS QUE QUIERO EDITAR
         if(nuevasLineas.includes(i)){
+            // EL ICONO DE CADA DISPOSITIVO EDITADO VA A SER 
+            // (1000 +  LOS DISPOSITIVOS QUE YA HE EDITADO)
             nuevosDatosInstal += (1000 + contadorDispositivosEditados).toString() +'\n';
 
             contadorDispositivosEditados++;
-        }else if((datosInstal.length - 1) === i){
+        }
+        // CUANDO ESTOY EN LA ULTIMA LINEA DEL 'Instal.dat' NO QUIERO METER UN SALTO DE LINEA
+        else if((datosInstal.length - 1) === i){
             nuevosDatosInstal += datosInstal[i];
         }else {
             nuevosDatosInstal += datosInstal[i] +'\n';
         }
     }
 
+    // TENGO QUE CONVERTIR EL STRING QUE CONTIENE LOS NUEVOS DATOS DEL INSTAL EN UN BUFFER
+    // PARA ASI PODER ESCRIBIR LOS DATOS EN EL ARCHIVO 'Instal.dat'.
     const buffer = Buffer.from(nuevosDatosInstal, 'utf-8', (err) => {
         if(err) console.error(err);
     });
@@ -294,6 +306,10 @@ function actualizarInstal(){
     fs.writeFileSync(pathInstal, buffer);
 }
 
+/**
+ * FUNCION QUE ME CREA UN JSON QUE OBTENGO DESDE EL CLIENTE CON EL NUMERO DE DISPOSITIVOS LOS
+ * CUALES EL CLIENTE HA MODIFICADO.
+ */
 function escribirJSON(){
     const pathJSON = path.join(__dirname, '../public/datos/fusionado.json');
     const numeroFusiones = fs.readdirSync(pathFusiones).length;
@@ -306,68 +322,44 @@ function escribirJSON(){
     fs.writeFileSync(pathJSON, json_obj);
 }
 
+/**
+ * FUNCION CON LA CUAL RECORTO LOS ICONOS CON DE LA LISTA 'fusionMaster'. TENGO QUE HACER
+ * DOS RECORTES UNO PARA EL ICONO CUANDO EL DISPOSITIVO ESTA EN 'ON' Y OTRO PARA EL 'OFF'.
+ */
 function recortarIconosFusionMaster(){
     const listaFusiones = fs.readdirSync(pathFusiones);
 
     for(let i=0; i<listaFusiones.length; i++){
         const rutaYnombreFusion = pathFusiones + listaFusiones[i];
 
+        // ICONO ON
         Jimp.read(rutaYnombreFusion)
         .then(iconoON => {
+            // NOMBRE QUE VA A TENER EL RECORTE DEL ICONO ON
             const nombreRecorteON = 'fusionMaster-ON-'+ i +'.png';
+            // RUTA Y NOMBRE QUE VA A TENER EL RECORTE DEL ICONO ON.
             const rutaYnombreRecorteON = pathRecortesFusionMaster + nombreRecorteON;
 
+            // RECORTO Y GUARDO EL ICONO ON.
             iconoON
                 .crop(0, 0, 100, 100)
                 .write(rutaYnombreRecorteON)
         }).catch(err => { console.error(err); })
         
+        // ICONO OFF
         Jimp.read(rutaYnombreFusion)
         .then(iconoOFF => {
+            // NOMBRE QUE VA A TENER EL RECORTE DEL ICONO OFF.
             const nombreRecorteOFF = 'fusionMaster-OFF-'+ i +'.png';
+            // RUTA Y NOMBRE QUE VA A TENER EL RECORTE DEL ICONO OFF.
             const rutaYnombreRecorteOFF = pathRecortesFusionMaster + nombreRecorteOFF;
 
+            // RECORTO Y GUARDO EL ICONO OFF
             iconoOFF
                 .crop(100, 0, 100, 100)
                 .write(rutaYnombreRecorteOFF)
         }).catch(err => { console.error(err); })
     }
-}
-
-
- function recortarIconosFusionMaster2() {
-    fs.readdir(pathFusiones, async (err, data) => {
-        if(err){
-            console.error(err);
-        }else {
-            const listaFusiones = data;
-
-            for(let i=0; i<listaFusiones.length; i++){
-                // OBTENGO LA IMAGEN UNA PARA CADA ICONO
-                const iconoRecortadoON = await Jimp.read(listaFusiones[i]);
-                const iconoRecortadoOFF = await Jimp.read(listaFusiones[i]);
-                
-                // NOMBRE QUE VAN A TENER LOS RECORTES
-                const nombreRecorteON = 'fusionMaster-ON-'+ i +'.png';
-                const nombreRecorteOFF = 'fusionMaster-OFF-'+ i +'.png';
-
-                iconoRecortadoON.crop(0, 0, 100, 100);
-                iconoRecortadoOFF.crop(100, 0, 100, 100);
-
-                iconoRecortadoON.write(pathRecortesFusionMaster + nombreRecorteON, (err) => {
-                    if(err){
-                        console.error(err);
-                    }
-                });
-
-                iconoRecortadoOFF.write(pathRecortesFusionMaster + nombreRecorteOFF, (err) => {
-                    if(err){
-                        console.error(err);
-                    }
-                });
-            }
-        }
-    });
 }
 
 
