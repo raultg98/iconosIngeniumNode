@@ -80,11 +80,16 @@ const storage = multer.diskStorage({
                 // EN CASO DE QUE TENGAN EL MISMO NOMBRE, SE LO CAMBIO POR 'listCustom.ext';
                 cb(null, ('listaCustom.'+ extension[1]));
             }else{
-                // EN CASO DE QUE NO TENGA EL MISMO NOMBRE, LE PONGO EL NOMBRE CON EL QUE ME LA SUBISTES.
-                cb(null, res.originalname.toLowerCase());
+                const nombreOriginal = res.originalname.toString().replace('-', '_');
+                const listas = fs.readdirSync(path.join(__dirname, '../public/img/listas/'));
+                
+                if(listas.includes(nombreOriginal)){
+                    cb(null, 'copia-'+ listas.length +'-'+ nombreOriginal);
+                }else {
+                    // EN CASO DE QUE NO TENGA EL MISMO NOMBRE, LE PONGO EL NOMBRE CON EL QUE ME LA SUBISTES.
+                    cb(null, nombreOriginal);
+                }
             }
-
-            // cb(null, res.originalname.toLowerCase());
         }
     }
 });
