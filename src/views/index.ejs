@@ -1,18 +1,20 @@
-<%- include('template/cabecera.ejs', {titulo: 'ICONOS INGENIUM'}) %>
+<%- include('template/cabecera.ejs', {titulo: 'ICONOS INGENIUM', index: true }) %>
 
 <div id="contenedor-carga">
-    <div id="carga">
-
+    <div id="contenedor-carga__letras">
+        <h1 id="carga-letras"></h1>
     </div>
+
+    <div id="carga"></div>
 </div>
 
 <form action="/" method="POST" class="row mx-3 my-4" id="formulario">
 
-    <button type="submit" id="botonEnviar" class="col-12 btn colorFondo text-white">
+    <!-- <button type="submit" id="botonEnviar" class="col-12 btn colorFondo text-white">
         GUARDAR CAMBIOS
-    </button>
+    </button> -->
 
-</form>
+</form> 
 
 <div id="divPadre"></div>
 

@@ -220,12 +220,38 @@ function fusionHorizontal(iconosInput){
  * DONDE SE GUARDA LA FUSION VERTICAL.
  */
 function fusionVertical(){
-    const listaFusiones = fs.readdirSync(pathFusiones);
+    const listaFusionesSinOrdenar = fs.readdirSync(pathFusiones);
+    const listaFusionesOrdenadas = [];
+
+    const aux = [];
+    for(let i=0; i<listaFusionesSinOrdenar.length; i++){
+        // OBTENGO LA POSICION QUE OCUPA EL DISPOSITIVO EN EL 'Instal.dat'
+        // ( dispositivo - numeroDispositivo .png)
+        const numeroDispositivo = listaFusionesSinOrdenar[i].split('-')[1].split('.')[0];
+
+        aux.push(numeroDispositivo);
+    }
+
+    aux.sort((a, b) => a - b );
+
+    for(let i=0; i<aux.length; i++){
+        const nombreFusion = 'dispositivo-'+ aux[i] +'.png';
+        
+        listaFusionesOrdenadas.push(nombreFusion);
+    }
+
+    // TENGO QUE ORDENAR LAS FUSIOENS
+    console.log('LISTA FUSIONES DES-ORDENADAS: ');
+    console.log(listaFusionesSinOrdenar);
+
+
+    console.log('LISTA FUSIONES ORDENADAS: ');
+    console.log(listaFusionesOrdenadas);
 
     // SI SOLAMENTE HE REALIZO UNA FUSION EN HORIZONTAL NO HACE FALTA QUE HAGA LA FUSION EN 
     // VERTICAL YA QUE PARA HACERLA NECESITO MINIMO DOS FUSIONES HORIZONTALES.
-    if(listaFusiones.length === 1){
-        const pathYnombreFusionAct = pathFusiones + listaFusiones[0]
+    if(listaFusionesOrdenadas.length === 1){
+        const pathYnombreFusionAct = pathFusiones + listaFusionesOrdenadas[0]
 
         fs.copyFile(pathYnombreFusionAct, pathFusionMaster, (err) => {
             if (err) console.error(err);
@@ -234,9 +260,9 @@ function fusionVertical(){
         // ARRAY QUE COTIENE EL NOMBRE Y LA RUTA DE CADA FUSION EN VERTICAL.
         const rutaYnombreFusion = [];
 
-        for(let i=0; i<listaFusiones.length; i++){
+        for(let i=0; i<listaFusionesOrdenadas.length; i++){
             // HAGO UN PUSH DE LA RUTA Y EL NOMBRE DE CADA UNA DE LAS FUSIONES
-            rutaYnombreFusion.push(pathFusiones + listaFusiones[i]);
+            rutaYnombreFusion.push(pathFusiones + listaFusionesOrdenadas[i]);
         }
 
         // REALIZO LA FUSION EN VERTICAL
@@ -245,7 +271,7 @@ function fusionVertical(){
             .then(img => {
                 img.write(pathFusionMaster)
             })
-        }, 50);
+        }, 200);
         
     }
 }

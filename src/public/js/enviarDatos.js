@@ -2,7 +2,7 @@ const formulario = document.getElementById('formulario');
 const botonEnviar = document.getElementById('botonEnviar');
 const botonPrueba = document.getElementById('botonPrueba');
 
-formulario.addEventListener('submit', () => {
+botonEnviar.addEventListener('click', () => {
     const dispositivos = document.querySelectorAll('.dispositivo');
 
     // RECORRO TODOS LOS DISPOTIVOS
@@ -58,6 +58,8 @@ formulario.addEventListener('submit', () => {
 
             formulario.appendChild(inputEncendido);
             formulario.appendChild(inputApagado);
+
+            formulario.submit();
         }
     };
 });

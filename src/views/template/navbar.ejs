@@ -1,7 +1,7 @@
-<nav class="navbar navbar-expand-lg navbar-dark colorFondo text-white">
+<nav class="navbar navbar-expand-lg navbar-dark colorFondo text-white sticky-top pb-md-2 mb-2">
     <div class="container-fluid">
       <a class="navbar-brand" href="/">
-        <img src="/img/logo/logo2.png" class="logo">
+        <img src="/img/logo.png" class="logo">
       </a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,21 @@
             <a class="nav-link active" href="/add">SUBIR ICONOS</a>
           </li>    
         </ul>
-      </div>
 
+        <% if(index) { %>
+          <!-- <form action="/" method="POST" class="navbar-right" id="formulario"></form> -->
+          <div class="navbar-right">
+              <ul class="nav">
+                <li class="nav-item mx-1">
+                  <button type="submit" id="botonEnviar" class="btn bg-white colorTexto">
+                    GUARDAR CAMBIOS
+                  </button>
+                </li>
+              </ul>
+          </div>
+        <!-- </form> -->
+        <% } %> 
+
+      </div>
     </div>
   </nav>

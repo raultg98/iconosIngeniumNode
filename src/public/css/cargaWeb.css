@@ -10,6 +10,14 @@
     transition: all 2s ease;
 }
 
+#contenedor-carga__letras {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 35vh;
+    color: #202e54;
+}
+
 #carga{
     border: 15px solid #ccc;
     border-top-color: #202e54;
