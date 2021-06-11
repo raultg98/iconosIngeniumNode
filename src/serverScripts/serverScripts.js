@@ -34,19 +34,65 @@ script.obtenerDatosInstal = () => {
     // STRING QUE CONTIENE TODOS LOS DATOS DEL 'Instal.dat'
     const componentesInstal = fs.readFileSync(pathDatos).toString().split(/\n/);
 
+    // TENGO QUE COMPROBAR SI EL 'Instal.dat' ES DE KNX. Y SE SI ES DE KNX PORQUE LOS 'Instal.dat'
+    // DE KNX TIENEN EN LA PRIMERA LINEA: KNX: numero.
+    if(componentesInstal[0].split(':')[0] === 'KNX'){
+        console.log('EL INSTAL ES DE KNX');
+
+        instalKNX(componentesInstal);
+    }else {
+        console.log('EL INSTAL ES DE BUSing');
+
+        instalBusing(componentesInstal);
+    }
+}
+
+/**
+ * FUNCION QUE ME CREA UN JSON CON LOS DATOS DE LOS COMPONENTES CUANDO EL ARCHIVO 'Instal.dat'
+ * ES DE KNX. LOS DATOS DE LOS COMPONENTES QUE VA A TENER EL JSON SON:
+ *      - posicion1, nombre, posicion3, posicion4 e icono.
+ * LOS 4 PRIMEROS DATOS SON COMO EL 'id' DEL COMPONENTE.
+ * @param {*} componentesInstal 
+ */
+function instalKNX(componentesInstal){
+    const arrayComponentes = [];
+
+    for(let i=1; i<componentesInstal.length; i+=8){
+        const componente = {
+            posicion1: componentesInstal[i], 
+            nombre: componentesInstal[i+1], 
+            posicion3: componentesInstal[i+2], 
+            posicion4: componentesInstal[i+3], 
+            icono: componentesInstal[i+7]
+        }
+
+        if(i === 1){
+            arrayComponentes.push(componente);
+        }else if(!isComponenteInArray(arrayComponentes, componente)){
+            arrayComponentes.push(componente);
+        }
+    }
+
+    // PASO LA LISTA DE OBJETOS A UN JSON
+    const json_obj = JSON.stringify(arrayComponentes);
+    fs.writeFileSync(jsonInstal, json_obj);
+}
+
+
+/**
+ * FUNCION QUE ME CREA UN ARCHIVO JSON CON TODOS LOS DATOS DE LOS COMPONENTES. ESTOS DATOS SON
+ * LOS QUE NECESITA EL CLIENTE PARA PINTAR CADA COMPONENTE; nombre e icono
+ * 
+ * @param { Array } componentesInstal 
+ */
+function instalBusing(componentesInstal){
     // LISTA QUE VA A CONTENER TODOS LOS OBJETOS (CADA OBJETO ES UN COMPONENTE).
     const arrayComponentes = [];
     for(let i=0; i<componentesInstal.length; i+=8){
         // COMO SOLO ME INTERESAN 2 LINEAS DE CAD COMPONENTE, A LAS OTRAS LES DOY EL NOMBRE
         // DE LA POSICION QUE OCUPAN EN EL COMPONENTE.
         const componente = {
-            posicion0: componentesInstal[i],
             nombre:    componentesInstal[i+1],
-            posicion2: componentesInstal[i+2],
-            posicion3: componentesInstal[i+3],
-            posicion4: componentesInstal[i+4],
-            posicion5: componentesInstal[i+5],
-            posicion6: componentesInstal[i+6],
             icono:     componentesInstal[i+7]
         }
 
@@ -57,6 +103,38 @@ script.obtenerDatosInstal = () => {
     const json_obj = JSON.stringify(arrayComponentes);
     fs.writeFileSync(jsonInstal, json_obj);
 }
+
+
+/**
+ * FUNCION QUE COMPRUEBA SI UN OBJETO PASADO COMO PARAM ESTA EN LA LISTA PASADA COMO PARAM
+ * TAMBIEN, PARA QUE LOS OBJETOS SEAN IGUALES TIENEN QUE TENER IGUAL:
+ *      - posicion1, nombre, posicion3 y posicion4.
+ * 
+ * @param { Array } lista , lista que contiene todos los componentes que son diferentes.
+ * @param { Object } componente , objeto el cual se quiere comprobar si esta en la lista.
+ * @returns 
+ */
+ function isComponenteInArray(lista, componente){
+
+    let contador = 0;
+    let igual = false;
+
+    while(contador < lista.length && igual === false){
+        const listaObj = lista[contador];
+
+        if(listaObj.posicion1 === componente.posicion1 && listaObj.nombre === componente.nombre &&
+           listaObj.posicion3 === componente.posicion3){
+                igual = true;
+        }else{
+            igual = false;
+        }
+
+        contador++;
+    }
+
+    return igual;
+}
+
 
 /**
  * FUNCION CON LA CUAL PASO LOS DATOS DE LAS LISTAS AL CLIENTE. ESTAS LISTAS SON LAS QUE EL CLIENTE

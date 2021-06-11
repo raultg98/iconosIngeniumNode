@@ -47,19 +47,19 @@ controller.post = (req, res) => {
 
         setTimeout(() => {
             fusionVertical();
-        }, 1000);
-
-        setTimeout(() => {
-            actualizarInstal();
         }, 1500);
 
         setTimeout(() => {
+            actualizarInstal();
+        }, 2000);
+
+        setTimeout(() => {
             escribirJSON();
-        }, 2000)
+        }, 2500)
 
         setTimeout(() => {
             res.redirect('/');
-        }, 5500);
+        }, 6500);
     }else {
         console.log('LA PETICION POST NO TIENE DATOS');
         
@@ -240,14 +240,6 @@ function fusionVertical(){
         listaFusionesOrdenadas.push(nombreFusion);
     }
 
-    // TENGO QUE ORDENAR LAS FUSIOENS
-    console.log('LISTA FUSIONES DES-ORDENADAS: ');
-    console.log(listaFusionesSinOrdenar);
-
-
-    console.log('LISTA FUSIONES ORDENADAS: ');
-    console.log(listaFusionesOrdenadas);
-
     // SI SOLAMENTE HE REALIZO UNA FUSION EN HORIZONTAL NO HACE FALTA QUE HAGA LA FUSION EN 
     // VERTICAL YA QUE PARA HACERLA NECESITO MINIMO DOS FUSIONES HORIZONTALES.
     if(listaFusionesOrdenadas.length === 1){
@@ -276,6 +268,7 @@ function fusionVertical(){
     }
 }
 
+
 /**
  * FUNCION QUE ME ACTULIZA LOS DATOS DEL 'Instal.dat'. EN CONCRETO SOLAMENTE ME ACTULIZA
  * LA LINEA DE CODIGO DE CADA DISPOSITIVO EDITADO RELACIONADO CON EL ICONO DEL MISMO.
@@ -283,22 +276,41 @@ function fusionVertical(){
 function actualizarInstal(){
     // OBTENGO TODOS LOS DATOS DEL 'Instal.dat'
     const datosInstal = fs.readFileSync(pathInstal).toString().split(/\n/);
+
     // OBTENGO TODAS LAS FUSIONES EN HORIZONTAL QUE SE HAN REALIZADO
     const listaFusiones = fs.readdirSync(pathFusiones);
 
     // ARRAY QUE VA A CONTENER TODAS LAS LINEAS DEL 'Instal.dat' QUE TENGO QUE MODIFICAR.
     const nuevasLineas = [];
 
-    for(let i=0; i<listaFusiones.length; i++){
+    // TENGO QUE COMPROBAR DE QUE TIPO ES EL 'Instal.dat'
+    if(datosInstal[0].split(':')[0] === 'KNX'){
+        console.log('EL INSTAL ES DE KNX');
+        for(let i=0; i<listaFusiones.length; i++){
 
-        // DISPOSITIVO AL CUAL LE QUIERO EDITAR UNA LINEA.
-        const dispositivoEditado = parseInt(listaFusiones[i].split('-')[1].split('-'[0]));
-        // LINEA DEL ICONO DE UN DISPOSITIVO EN CONCRETO.
-        const lineaDispositivoIcono = (dispositivoEditado + 1) * 8 - 1;
+            const numeroComponente = listaFusiones[i].split('-')[1].split('.')[0];
 
-        nuevasLineas.push(lineaDispositivoIcono);
+            // OBTENGO LA LINEA QUE TENGO QUE EDITAR EN EL 'Instal.dat' PARA UN COMPONENTE EN CONCRETO.
+            lineaIconoComponente(numeroComponente, datosInstal, (linea) => {
+                nuevasLineas.push(linea);
+            });
+        }
+        
+    }else {
+        console.log('EL INSTAL ES DE BUSing')
+        for(let i=0; i<listaFusiones.length; i++){
+            // DISPOSITIVO AL CUAL LE QUIERO EDITAR UNA LINEA.
+            const dispositivoEditado = parseInt(listaFusiones[i].split('-')[1].split('-'[0]));
+            // LINEA DEL ICONO DE UN DISPOSITIVO EN CONCRETO.
+            const lineaDispositivoIcono = (dispositivoEditado + 1) * 8 - 1;
+    
+            nuevasLineas.push(lineaDispositivoIcono);
+        }
     }
-       
+
+    console.log('NUEVAS LINEAS: ');
+    console.log(nuevasLineas);
+    
     // STRING QUE VA CONTENER LOS DATOS EDITADOS DEL 'Instal.dat'.
     let nuevosDatosInstal = '';
     // CONTADOR PARA SABER A CUANTOS DISPOSITIVOS MODIFICADOS LES HE CAMBIADO YA LA LINEA 
@@ -311,8 +323,12 @@ function actualizarInstal(){
         if(nuevasLineas.includes(i)){
             // EL ICONO DE CADA DISPOSITIVO EDITADO VA A SER 
             // (1000 +  LOS DISPOSITIVOS QUE YA HE EDITADO)
-            nuevosDatosInstal += (1000 + contadorDispositivosEditados).toString() +'\n';
-
+            if((datosInstal.length - 1) === i){
+                nuevosDatosInstal += (1000 + contadorDispositivosEditados).toString();
+            }else{
+                nuevosDatosInstal += (1000 + contadorDispositivosEditados).toString() +'\n';
+            }
+              
             contadorDispositivosEditados++;
         }
         // CUANDO ESTOY EN LA ULTIMA LINEA DEL 'Instal.dat' NO QUIERO METER UN SALTO DE LINEA
@@ -331,6 +347,101 @@ function actualizarInstal(){
 
     fs.writeFileSync(pathInstal, buffer);
 }
+
+/**
+ * ME PASAN LA POSICION DE UN COMPONENTE EN EL ARRAY DE COMPONENTES NO REPETIDO. Y TENGO
+ * QUE OBTENER LA LINEA EN LA CUAL TIENE EL ICONO ESE DISPOSITIVO. PARA ELLO:
+ * 
+ *      - TENGO QUE TENER TODOS LOS DATOS DEL INSTAL.DAT
+ *      - TENGO QUE TENER UNA LISTA CON TODOS LOS COMPONENTES NO REPETIDOS.
+ *      - TENGO QUE SABER CUANTOS COMPONENTES REPETIDOS TENGO ANTES DEL COMPONENTE AL QUE LE DESEO 
+ *        CAMBIAR LA LINEA:
+ *          * UN CONTADOR CON TODOS LOS COMPONENTES QUE TENGO HASTA QUE LOS DATOS COINCIDAN.
+ * 
+ * 
+ */
+ function lineaIconoComponente(posicion, datosInstal, callback){
+    // LISTA QUE CONTIENE TODOS LOS COMPONENTES DEL 'Instal.dat' ESTEN REPETIDOS O NO.
+    const componentesNoRepetidos = [];
+    // LISTA QUE SOLO CONTIENE LOS COMPONENTES, NINGUN COMPONENTE ESTA REPETIDO EN ESTA LISTA.
+    const componentesRepetidos = [];
+
+    // AÑADO LOS COMPONENTES A LA LISTA DE 'componentesRepetidos'.
+    for(let i=1; i<datosInstal.length; i+=8){
+        const componente = {
+            posicion1: datosInstal[i], 
+            nombre: datosInstal[i+1], 
+            posicion3: datosInstal[i+2], 
+            posicion4: datosInstal[i+3], 
+            icono: datosInstal[i+7]
+        }
+
+        componentesRepetidos.push(componente);
+    }
+
+    // AÑADO LOS COMPONENTES A LA LISTA DE 'componenteNoRepetidos'.
+    for(let i=1; i<datosInstal.length; i+=8){
+        const componente = {
+            posicion1: datosInstal[i], 
+            nombre: datosInstal[i+1], 
+            posicion3: datosInstal[i+2], 
+            posicion4: datosInstal[i+3], 
+            icono: datosInstal[i+7]
+        }
+
+        if(i === 1){
+            componentesNoRepetidos.push(componente);
+        }else {
+            if(!isComponenteInArray(componentesNoRepetidos, componente)){
+                componentesNoRepetidos.push(componente);
+            }
+        }
+    }
+
+    // COMPONENTE AL CUAL LE QUIERO EDITAR LA LINEA.
+    const componenteEditado = componentesNoRepetidos[parseInt(posicion)];
+    
+    // RECORRO LA LISTA DE TODOS LOS COMPONENTES Y CUANDO ENCUENTRE UNO QUE SEA IGUAL QUE EL 
+    // QUE ESTOY COMPARANDO, CALCULO LA LINEA EN FUNCION A LA POSICION QUE ESTA OCUPANDO EL
+    // COMPONENTE EN LA LISTA.
+    for(let i=0; i<componentesRepetidos.length; i++){
+        // COMPRUEBO QUE COINCIDEN ESTOS CAMPOS.
+        if(componenteEditado.posicion1 === componentesRepetidos[i].posicion1 && 
+           componenteEditado.nombre === componentesRepetidos[i].nombre &&
+           componenteEditado.posicion3 === componentesRepetidos[i].posicion3 &&
+           componenteEditado.posicion4 === componentesRepetidos[i].posicion4){
+                
+                let posicionComponenteListaRepetidos = i;
+                // CALCULO LA LINEA EN LA QUE ESTA EL ICONO DEL DISPOSITIVO.
+                // ( posicionEnLaLista * numeroDeLineasQueTieneUnComponente + laLineaEnLaQueEstaElIcono ).
+                let lineaConcreta = posicionComponenteListaRepetidos * 8 + 8;
+
+                return callback(lineaConcreta)
+        }
+    }
+}
+    
+
+function isComponenteInArray(lista, componente){
+    let contador = 0;
+    let igual = false;
+
+    while(contador < lista.length && igual === false){
+        const listaObj = lista[contador];
+
+        if(listaObj.posicion1 === componente.posicion1 && listaObj.nombre === componente.nombre &&
+           listaObj.posicion3 === componente.posicion3 && listaObj.posicion4 === componente.posicion4){
+                igual = true;
+        }else{
+            igual = false;
+        }
+
+        contador++;
+    }
+
+    return igual;
+}
+
 
 /**
  * FUNCION QUE ME CREA UN JSON QUE OBTENGO DESDE EL CLIENTE CON EL NUMERO DE DISPOSITIVOS LOS

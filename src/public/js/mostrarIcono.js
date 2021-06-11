@@ -193,7 +193,7 @@ setTimeout(() => {
                         
 
                         /**********     VALORES     **********/
-                        nombreDipositivo.innerText = componentes[i].nombre +'( '+ i +' )';
+                        nombreDipositivo.innerText = componentes[i].nombre;
                         
                         encabezadoEncendido.innerText = 'Encendido';
                         encabezadoApagado.innerText = 'Apagado';
