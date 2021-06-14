@@ -1,0 +1,2 @@
+Revisar el archivo previewUpload para cuando subo un archivo que no tiene una extension valida
+me desactive el boton.

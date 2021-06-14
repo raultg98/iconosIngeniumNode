@@ -25,12 +25,6 @@ const jsonInstal = path.join(__dirname, '../public/datos/Instal.json');
  *      - 7 --> icono
  */
 script.obtenerDatosInstal = () => {
-    /**
-     * 1. LEO LOS DATOS, LOS CONVIERTO EN UN STRING Y LES QUITO LOS SALTOS DE LINEA
-     * 2. GUARDO LOS DATOS DE CADA COMPONENTE EN UN OBJETO Y METO LOS OBJETOS EN UN ARRAY
-     * 3. GUARDO EL ARRAY EN UN ARCHIVO '.json' PARA ACCEDER A EL DESDE EL CLIENTE.
-     */
-
     // STRING QUE CONTIENE TODOS LOS DATOS DEL 'Instal.dat'
     const componentesInstal = fs.readFileSync(pathDatos).toString().split(/\n/);
 
@@ -114,7 +108,7 @@ function instalBusing(componentesInstal){
  * @param { Object } componente , objeto el cual se quiere comprobar si esta en la lista.
  * @returns 
  */
- function isComponenteInArray(lista, componente){
+function isComponenteInArray(lista, componente){
 
     let contador = 0;
     let igual = false;

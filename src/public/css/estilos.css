@@ -50,7 +50,17 @@ footer{
     background-color: #202e54;
 }
 
-.uploadFiles:hover{
-    background-color: #202e54;
-    color: white;
+
+/* BOTON UPLOAD FILES DE HTML DE ADD */
+.uploadFiles{
+    border-radius: 4px;
+}
+
+.uploadFiles:disabled{
+    color: grey;
+    border-color: grey;
+}
+
+.uploadFiles:disabled:hover{
+    cursor: not-allowed;
 }
