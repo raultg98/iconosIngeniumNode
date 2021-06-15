@@ -26,6 +26,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 /***************    RUTAS    ***************/
 app.use(require('./routes/appRoutes'));
 
+app.get('*', (req, res, next) => {
+    if(res.ok == 404){
+        res.render('template/404');
+    }else {
+        next();
+    }
+})
+
 
 /***************    STATIC FILES    ***************/
 app.use(express.static(path.join(__dirname, '/public')));

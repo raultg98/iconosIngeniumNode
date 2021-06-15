@@ -82,10 +82,14 @@ const storage = multer.diskStorage({
             }else{
                 const nombreOriginal = res.originalname.toString().replace('-', '_');
                 const listas = fs.readdirSync(path.join(__dirname, '../public/img/listas/'));
+                // const iconos_recortados = fs.readdirSync(path.join(__dirname, '../public/img/fusion/'));
                 
                 if(listas.includes(nombreOriginal)){
                     cb(null, 'copia-'+ listas.length +'-'+ nombreOriginal);
-                }else {
+                }else if(nombreOriginal == 'iconos_importados.png'){
+                    cb(null, 'lista_'+ nombreOriginal);
+                }
+                else {
                     // EN CASO DE QUE NO TENGA EL MISMO NOMBRE, LE PONGO EL NOMBRE CON EL QUE ME LA SUBISTES.
                     cb(null, nombreOriginal);
                 }

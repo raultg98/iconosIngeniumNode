@@ -63,7 +63,7 @@ iconToUpload.addEventListener('change', (e) => {
 
         if(!expresion.test(extensionArchivo)){
             desabilitarUnIcono = true;
-            crearMensajeError('LA EXTENSION '+ extensionArchivo +' NO ES VALIDA');
+            crearMensajeError('LA EXTENSION '+ extensionArchivo +' NO ES VALIDA. INTRODUCE UNA VALIDA: .png .jpeg .jpg');
         }else {
             desabilitarUnIcono = false;
 
@@ -88,7 +88,7 @@ iconToUpload.addEventListener('change', (e) => {
     /**
      * disabled = true ==> BOTON DESACTIVADO.
      */
-    if(desabilitarListas && desabilitarUnIcono){
+    if(desabilitarListas || desabilitarUnIcono){
         botonSubmit.disabled = true;
         botonSubmit.style.cursor = 'not-allowed';
     }else {
@@ -116,7 +116,7 @@ listToUpload.addEventListener('change', (e) => {
 
     if(!expresion.test(extensionArchivo)){
         desabilitarListas = true;
-        crearMensajeError(`LA EXTENSION '${extensionArchivo}' NO ES VALIDA`);
+        crearMensajeError(`LA EXTENSION '${extensionArchivo}' NO ES VALIDA, INTRODUCE UNA VALIDA: .png .jpeg .jpg`);
     }else {
         desabilitarListas = false;
 
@@ -140,7 +140,7 @@ listToUpload.addEventListener('change', (e) => {
     /**
      * disabled = true ==> BOTON DESACTIVADO.
      */
-    if(desabilitarListas && desabilitarUnIcono){
+    if(desabilitarListas || desabilitarUnIcono){
         botonSubmit.disabled = true;
         botonSubmit.style.cursor = 'not-allowed';
     }else {
