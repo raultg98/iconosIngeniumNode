@@ -212,21 +212,22 @@ function comprobarRecorte(nombreRecorte){
                 }
 
                 // REALIZO LA FUSION
-                mergeImg([imgON, imgOFF], { direction: false })
-                .then(img => {
-                    img.write(pathYnombreFusion);
+                setTimeout(() => {
+                    mergeImg([imgON, imgOFF], { direction: false })
+                    .then(img => {
+                        img.write(pathYnombreFusion);
 
-                    if(i == iconosInput.length - 2){
-                        resolve();
-                    }
-                })
-                .catch(err => { 
-                    console.log('ERROR DENTRO DE MERGE_IMG FUSION HORIZONTAL');
-                    console.log(err);
-                })
+                        if(i == iconosInput.length - 2){
+                            resolve();
+                        }
+                    })
+                    .catch(err => { 
+                        console.log('ERROR DENTRO DE MERGE_IMG FUSION HORIZONTAL');
+                        console.log(err);
+                    })
+                }, 100);       
             }
         }
-
     });
 }
 
@@ -276,8 +277,8 @@ function fusionVertical(){
                     rutaYnombreFusion.push(pathFusiones + listaFusionesOrdenadas[i]);
                 }
 
-                console.log('RUTA Y NOMBRE FUSIÓN: ');
-                console.log(rutaYnombreFusion);
+                // console.log('RUTA Y NOMBRE FUSIÓN: ');
+                // console.log(rutaYnombreFusion);
 
                 // REALIZO LA FUSION EN VERTICAL
                 mergeImg(rutaYnombreFusion, { direction: true })
@@ -308,7 +309,11 @@ function actualizarInstal(){
         // OBTENGO TODAS LAS FUSIONES EN HORIZONTAL QUE SE HAN REALIZADO
         const listaFusiones = fs.readdirSync(pathFusiones);
 
+        console.log('LISTA FUSIONES: ');
+        console.log(listaFusiones);
+
         // ARRAY QUE VA A CONTENER TODAS LAS LINEAS DEL 'Instal.dat' QUE TENGO QUE MODIFICAR.
+        // LAS NUEVAS LINEAS NO ESTAN ORDENADAS DE FORMAR NORMAL ==> [0, 1, 10, 11, 2, 20, 3];
         const nuevasLineas = [];
 
         // TENGO QUE COMPROBAR DE QUE TIPO ES EL 'Instal.dat'
@@ -475,7 +480,7 @@ function isComponenteInArray(lista, componente){
  */
 function escribirJSON(){
     return new Promise((resolve, reject) => {
-        console.log('DENTRO DE ESCRIBIR JSON');
+        // console.log('DENTRO DE ESCRIBIR JSON');
 
         const pathJSON = path.join(__dirname, '../public/datos/fusionado.json');
         const numeroFusiones = fs.readdirSync(pathFusiones).length;
